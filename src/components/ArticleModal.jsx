@@ -16,49 +16,110 @@ export const ArticleModal = ({ articleNo, onClose }) => {
     articleNo.includes("리스크관리") ||
     articleNo.includes("IPS");
 
+  const hasContent =
+    article.summary || (article.keyPoints && article.keyPoints.length > 0);
+
   return (
     <div
       className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4"
       onClick={onClose}
     >
       <div
-        className="bg-white max-w-lg w-full rounded-md shadow-2xl border border-stone-200"
+        className="bg-white max-w-lg w-full max-h-[85vh] flex flex-col rounded-md shadow-2xl border border-stone-200"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between p-4 border-b border-stone-200">
-          <div>
+        <div className="flex items-start justify-between p-4 border-b border-stone-200 flex-shrink-0">
+          <div className="min-w-0 flex-1">
             <div className="text-xs text-stone-500">{article.section}</div>
             <h3 className="text-lg font-bold text-stone-900">
               {articleNo} {article.title}
             </h3>
           </div>
-          <button onClick={onClose} className="p-1 hover:bg-stone-100 rounded-sm">
+          <button
+            onClick={onClose}
+            className="p-1 hover:bg-stone-100 rounded-sm flex-shrink-0 ml-2"
+            aria-label="닫기"
+          >
             <X className="w-5 h-5 text-stone-600" />
           </button>
         </div>
-        <div className="p-5">
-          <div
-            className={cn(
-              "border rounded-sm p-4 mb-4",
-              isExternal
-                ? "bg-blue-50/40 border-blue-200"
-                : "bg-amber-50/40 border-amber-200"
-            )}
-          >
-            <p className="text-sm text-stone-800 leading-relaxed">
-              <strong className={isExternal ? "text-blue-900" : "text-amber-900"}>
-                {isExternal ? "외부 법령·규정 출처:" : "약관 원문 인용:"}
-              </strong>
-              <br />
+
+        <div className="p-5 space-y-4 overflow-y-auto">
+          {hasContent ? (
+            <>
+              {article.summary && (
+                <div
+                  className={cn(
+                    "border rounded-sm p-3",
+                    isExternal
+                      ? "bg-blue-50/40 border-blue-200"
+                      : "bg-amber-50/40 border-amber-200"
+                  )}
+                >
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <span className="text-base leading-none">📌</span>
+                    <span
+                      className={cn(
+                        "text-[10px] uppercase tracking-wider font-bold",
+                        isExternal ? "text-blue-900" : "text-amber-900"
+                      )}
+                    >
+                      한 줄 요약
+                    </span>
+                  </div>
+                  <p className="text-sm text-stone-800 leading-relaxed">
+                    {article.summary}
+                  </p>
+                </div>
+              )}
+
+              {article.keyPoints && article.keyPoints.length > 0 && (
+                <div>
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <span className="text-base leading-none">📋</span>
+                    <h4 className="text-[11px] uppercase tracking-wider font-bold text-stone-700">
+                      핵심 내용
+                    </h4>
+                  </div>
+                  <ul className="space-y-1.5">
+                    {article.keyPoints.map((point, i) => (
+                      <li
+                        key={i}
+                        className="text-sm text-stone-800 leading-relaxed flex gap-2"
+                      >
+                        <span className="text-amber-600 mt-1 text-[10px] flex-shrink-0">
+                          ●
+                        </span>
+                        <span className="flex-1">{point}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </>
+          ) : (
+            <div
+              className={cn(
+                "border rounded-sm p-4 text-sm text-stone-700 leading-relaxed",
+                isExternal
+                  ? "bg-blue-50/40 border-blue-200"
+                  : "bg-amber-50/40 border-amber-200"
+              )}
+            >
               본 화면은 직원 안내용 요약입니다.{" "}
               {isExternal
                 ? "정확한 조항은 해당 법령·시행령·내부 규정 원문을 직접 참조하시기 바랍니다."
                 : `정확한 조항 원문은 첨부된 약관 책자(2026. 1. 1 시행) ${articleNo} ${article.title}를 직접 참조하시기 바랍니다.`}
+            </div>
+          )}
+
+          <div className="text-[11px] text-stone-500 leading-relaxed space-y-1 pt-3 border-t border-stone-100">
+            <p>
+              ⚠ 본 화면은 직원 안내용 요약입니다. 정확한 조항 원문은 약관
+              책자(2026.1.1 시행) 또는 해당 법령·시행령·내부 규정을 직접 참조해
+              주세요.
             </p>
-          </div>
-          <div className="text-xs text-stone-500 leading-relaxed space-y-1">
-            <p>📚 출처: 소기업·소상공인공제 약관 (2026. 1. 1 시행), 중소기업협동조합법, 조세특례제한법, 운용요강, 자산운용 관련 내부 규정</p>
-            <p>📞 문의: 중소기업중앙회 노란우산공제 1666-9988</p>
+            <p>📞 중소기업중앙회 노란우산공제 1666-9988</p>
           </div>
         </div>
       </div>
