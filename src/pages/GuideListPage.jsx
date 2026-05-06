@@ -12,7 +12,7 @@ export const GuideListPage = ({ onSelectGuide }) => {
     <div className="space-y-6">
       <div>
         <span className="text-xs uppercase tracking-widest text-amber-700 font-semibold">Topic Guide</span>
-        <h1 className="text-3xl font-bold text-stone-900 tracking-tight mt-1">업무별 가이드</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-stone-900 tracking-tight mt-1">업무별 가이드</h1>
         <p className="text-sm text-stone-600 mt-1">약관 근거가 명시된 상담 가이드를 영역별로 확인하세요.</p>
       </div>
 
@@ -44,7 +44,7 @@ export const GuideListPage = ({ onSelectGuide }) => {
         ))}
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {filtered.map((guide) => {
           const cat = CATEGORIES.find((c) => c.id === guide.category);
           return (

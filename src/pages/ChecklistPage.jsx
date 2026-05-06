@@ -22,30 +22,32 @@ export const ChecklistPage = ({ onOpenArticle }) => {
     <div className="space-y-6">
       <div>
         <span className="text-xs uppercase tracking-widest text-amber-700 font-semibold">Document Checklist</span>
-        <h1 className="text-3xl font-bold text-stone-900 tracking-tight mt-1">구비서류 체크리스트</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-stone-900 tracking-tight mt-1">구비서류 체크리스트</h1>
         <p className="text-sm text-stone-600 mt-1">사유별 필요 서류를 확인하고 상담 중 체크하세요.</p>
       </div>
 
-      <div className="grid grid-cols-4 gap-4">
-        <div className="col-span-1 space-y-1">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+        <div className="lg:col-span-1">
           <h4 className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">사유 선택</h4>
-          {Object.entries(REASON_DOCUMENTS).map(([key, r]) => (
-            <button
-              key={key}
-              onClick={() => handleReasonChange(key)}
-              className={cn(
-                "w-full text-left px-3 py-2.5 text-sm rounded-sm transition-colors",
-                activeReason === key
-                  ? "bg-stone-900 text-white font-semibold"
-                  : "bg-white border border-stone-200 text-stone-700 hover:border-stone-400"
-              )}
-            >
-              {r.name}
-            </button>
-          ))}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-1 gap-1">
+            {Object.entries(REASON_DOCUMENTS).map(([key, r]) => (
+              <button
+                key={key}
+                onClick={() => handleReasonChange(key)}
+                className={cn(
+                  "w-full text-left px-3 py-2.5 text-sm rounded-sm transition-colors",
+                  activeReason === key
+                    ? "bg-stone-900 text-white font-semibold"
+                    : "bg-white border border-stone-200 text-stone-700 hover:border-stone-400"
+                )}
+              >
+                {r.name}
+              </button>
+            ))}
+          </div>
         </div>
 
-        <div className="col-span-3 space-y-4">
+        <div className="lg:col-span-3 space-y-4">
           <div className="bg-white border border-stone-200 rounded-md p-5">
             <div className="flex items-center justify-between mb-1">
               <h2 className="text-xl font-bold text-stone-900">{reason.name}</h2>

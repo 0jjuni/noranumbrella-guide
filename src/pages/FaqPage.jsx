@@ -25,7 +25,7 @@ export const FaqPage = ({ onOpenArticle }) => {
     <div className="space-y-6">
       <div>
         <span className="text-xs uppercase tracking-widest text-amber-700 font-semibold">FAQ Search</span>
-        <h1 className="text-3xl font-bold text-stone-900 tracking-tight mt-1">자주 묻는 질문</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-stone-900 tracking-tight mt-1">자주 묻는 질문</h1>
         <p className="text-sm text-stone-600 mt-1">키워드로 약관 기반 답변과 근거 조항을 즉시 확인하세요.</p>
       </div>
 
@@ -84,7 +84,7 @@ export const FaqPage = ({ onOpenArticle }) => {
               <div className="flex items-start gap-3">
                 <HelpCircle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-3 mb-1">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-3 mb-1">
                     <h3 className="text-sm font-bold text-stone-900">{faq.question}</h3>
                     <SourceBadge articles={faq.sourceReference.articles} onClick={onOpenArticle} />
                   </div>

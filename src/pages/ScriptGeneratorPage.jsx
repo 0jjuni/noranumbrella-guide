@@ -45,11 +45,11 @@ export const ScriptGeneratorPage = () => {
     <div className="space-y-6">
       <div>
         <span className="text-xs uppercase tracking-widest text-amber-700 font-semibold">Script Generator</span>
-        <h1 className="text-3xl font-bold text-stone-900 tracking-tight mt-1">고객 안내 스크립트 생성</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-stone-900 tracking-tight mt-1">고객 안내 스크립트 생성</h1>
         <p className="text-sm text-stone-600 mt-1">상담 변수를 입력하면 약관 근거가 첨부된 표준 안내문을 생성합니다.</p>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="space-y-4">
           <div className="bg-white border border-stone-200 rounded-md p-5 space-y-4">
             <SectionTitle>입력</SectionTitle>

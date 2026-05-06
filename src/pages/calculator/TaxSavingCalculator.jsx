@@ -87,9 +87,9 @@ export const TaxSavingCalculator = ({ onOpenArticle }) => {
 
   return (
     <div className="space-y-5">
-      <div className="grid grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
         {/* 입력부 */}
-        <div className="col-span-2 space-y-4">
+        <div className="lg:col-span-2 space-y-4">
           <div className="bg-white border border-stone-200 rounded-md p-5 space-y-4">
             <SectionTitle sub="고객 정보를 입력하세요">입력</SectionTitle>
 
@@ -195,7 +195,7 @@ export const TaxSavingCalculator = ({ onOpenArticle }) => {
         </div>
 
         {/* 결과부 */}
-        <div className="col-span-3 space-y-4">
+        <div className="lg:col-span-3 space-y-4">
           {result.isBlocked ? (
             <div className="bg-red-50 border-2 border-red-300 rounded-md p-6">
               <div className="flex items-start gap-3">

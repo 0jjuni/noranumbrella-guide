@@ -32,7 +32,7 @@ export const Dashboard = ({ onNavigate, onOpenArticle }) => {
           <span className="text-xs uppercase tracking-widest text-amber-700 font-semibold">Dashboard</span>
           <span className="text-xs text-stone-400">약관 2026.1.1 + 조특법 시행령 2026.2.27 + 중협법 2026.6.3 시행</span>
         </div>
-        <h1 className="text-3xl font-bold text-stone-900 tracking-tight">상담을 시작합니다</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-stone-900 tracking-tight">상담을 시작합니다</h1>
         <p className="text-sm text-stone-600 mt-1">고객 상황을 빠르게 분류하고 약관·법령 근거가 명확한 안내를 진행하세요.</p>
       </div>
 
@@ -50,7 +50,7 @@ export const Dashboard = ({ onNavigate, onOpenArticle }) => {
                 Sales Tool · NEW
               </span>
             </div>
-            <h2 className="text-2xl font-black text-white mb-1">
+            <h2 className="text-lg md:text-2xl font-black text-white mb-1">
               세일즈 계산기로 즉시 절세효과 안내
             </h2>
             <p className="text-sm text-stone-300 leading-relaxed">
@@ -76,7 +76,7 @@ export const Dashboard = ({ onNavigate, onOpenArticle }) => {
 
       <div>
         <SectionTitle sub="고객 상황에 맞는 상담 유형을 선택하세요">빠른 시작</SectionTitle>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {quickActions.map((qa) => {
             const Icon = qa.icon;
             return (
@@ -126,7 +126,7 @@ export const Dashboard = ({ onNavigate, onOpenArticle }) => {
 
       <div>
         <SectionTitle sub="약관 8개 핵심 영역">업무별 가이드</SectionTitle>
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
           {CATEGORIES.map((cat) => {
             const count = GUIDES.filter((g) => g.category === cat.id).length;
             return (

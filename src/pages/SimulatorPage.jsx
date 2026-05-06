@@ -44,12 +44,12 @@ export const SimulatorPage = ({ onOpenArticle }) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
         <div>
           <span className="text-xs uppercase tracking-widest text-amber-700 font-semibold">
             Consultation Simulator
           </span>
-          <h1 className="text-3xl font-bold text-stone-900 tracking-tight mt-1">
+          <h1 className="text-2xl md:text-3xl font-bold text-stone-900 tracking-tight mt-1">
             상담 시뮬레이터
           </h1>
           <p className="text-sm text-stone-600 mt-1">
@@ -131,13 +131,13 @@ export const SimulatorPage = ({ onOpenArticle }) => {
         <div
           className={cn(
             "grid gap-4",
-            coachMode && activeCoachTip ? "grid-cols-3" : "grid-cols-1"
+            coachMode && activeCoachTip ? "grid-cols-1 lg:grid-cols-3" : "grid-cols-1"
           )}
         >
           <div
             className={cn(
               "bg-white border border-stone-200 rounded-md p-6",
-              coachMode && activeCoachTip ? "col-span-2" : "col-span-1"
+              coachMode && activeCoachTip ? "lg:col-span-2" : ""
             )}
           >
             <h2 className="text-lg font-bold text-stone-900 mb-4">
@@ -159,7 +159,7 @@ export const SimulatorPage = ({ onOpenArticle }) => {
             </div>
           </div>
           {coachMode && activeCoachTip && (
-            <div className="col-span-1">
+            <div>
               <CoachCard coachTip={activeCoachTip} />
             </div>
           )}
@@ -170,12 +170,12 @@ export const SimulatorPage = ({ onOpenArticle }) => {
       {result && (
         <div className="space-y-4">
           <div className="bg-white border-2 border-amber-400 rounded-md p-6">
-            <div className="flex items-start justify-between mb-3">
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4 mb-3">
               <div>
                 <div className="text-xs uppercase tracking-wider text-amber-700 font-bold mb-1">
                   상담 결과
                 </div>
-                <h2 className="text-2xl font-bold text-stone-900">
+                <h2 className="text-xl md:text-2xl font-bold text-stone-900">
                   {result.title}
                 </h2>
               </div>
@@ -193,8 +193,8 @@ export const SimulatorPage = ({ onOpenArticle }) => {
             <CoachCard coachTip={activeCoachTip} />
           )}
 
-          <div className="grid grid-cols-3 gap-4">
-            <div className="col-span-2 space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="lg:col-span-2 space-y-4">
               <div className="bg-white border border-stone-200 rounded-md p-5">
                 <SectionTitle>다음 단계</SectionTitle>
                 <ol className="space-y-2">

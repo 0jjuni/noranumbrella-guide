@@ -147,8 +147,8 @@ export const ProductCompare = () => {
 
   return (
     <div className="space-y-5">
-      <div className="grid grid-cols-5 gap-4">
-        <div className="col-span-2 space-y-4">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+        <div className="lg:col-span-2 space-y-4">
           <div className="bg-white border border-stone-200 rounded-md p-5 space-y-4">
             <SectionTitle sub="가정 조건 입력">입력</SectionTitle>
 
@@ -254,8 +254,8 @@ export const ProductCompare = () => {
           </div>
         </div>
 
-        <div className="col-span-3 space-y-4">
-          <div className="grid grid-cols-3 gap-3">
+        <div className="lg:col-span-3 space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="bg-amber-50 border-2 border-amber-400 rounded-md p-3">
               <div className="text-[10px] uppercase tracking-wider text-amber-800 font-bold mb-1">
                 노란우산공제

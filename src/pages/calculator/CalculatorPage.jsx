@@ -44,7 +44,7 @@ export const CalculatorPage = ({ onOpenArticle }) => {
             <span className="text-xs uppercase tracking-widest text-amber-700 font-semibold">
               Calculator
             </span>
-            <h1 className="text-3xl font-bold text-stone-900 tracking-tight mt-1">
+            <h1 className="text-2xl md:text-3xl font-bold text-stone-900 tracking-tight mt-1">
               세일즈 보조 계산기
             </h1>
           </div>
@@ -67,7 +67,7 @@ export const CalculatorPage = ({ onOpenArticle }) => {
           <span className="text-xs uppercase tracking-widest text-amber-700 font-semibold">
             Calculator
           </span>
-          <h1 className="text-3xl font-bold text-stone-900 tracking-tight mt-1">
+          <h1 className="text-2xl md:text-3xl font-bold text-stone-900 tracking-tight mt-1">
             세일즈 보조 계산기
           </h1>
           <p className="text-sm text-stone-600 mt-1">
@@ -92,7 +92,7 @@ export const CalculatorPage = ({ onOpenArticle }) => {
       </div>
 
       {/* 탭 */}
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;

@@ -26,12 +26,12 @@ export const GuideDetailPage = ({ guide, onBack, onOpenArticle, onGoToScript }) 
           </span>
           <SourceBadge articles={guide.sourceReference.articles} onClick={onOpenArticle} />
         </div>
-        <h1 className="text-2xl font-bold text-stone-900 tracking-tight">{guide.title}</h1>
+        <h1 className="text-xl md:text-2xl font-bold text-stone-900 tracking-tight">{guide.title}</h1>
         <p className="text-sm text-stone-600 mt-1.5 leading-relaxed">{guide.summary}</p>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
-        <div className="col-span-2 space-y-5">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2 space-y-5">
           <div className="bg-white border border-stone-200 rounded-md p-5">
             <SectionTitle sub="상담 시 직원이 우선 확인할 내용">핵심 내용</SectionTitle>
             <ul className="space-y-2">
