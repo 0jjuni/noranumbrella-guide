@@ -71,11 +71,20 @@ export default function App() {
   const [selectedGuideId, setSelectedGuideId] = useState(null);
   const [openArticle, setOpenArticle] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [checklistReason, setChecklistReason] = useState(null);
 
   const selectedGuide = GUIDES.find((g) => g.id === selectedGuideId);
 
   const handleNavigate = (p) => {
     setPage(p);
+    setSelectedGuideId(null);
+    setDrawerOpen(false);
+    if (p !== "checklist") setChecklistReason(null);
+  };
+
+  const handleGoToChecklist = (reasonKey) => {
+    setChecklistReason(reasonKey);
+    setPage("checklist");
     setSelectedGuideId(null);
     setDrawerOpen(false);
   };
@@ -102,13 +111,23 @@ export default function App() {
       case "dashboard":
         return <Dashboard onNavigate={handleNavigate} onOpenArticle={setOpenArticle} />;
       case "simulator":
-        return <SimulatorPage onOpenArticle={setOpenArticle} />;
+        return (
+          <SimulatorPage
+            onOpenArticle={setOpenArticle}
+            onGoToChecklist={handleGoToChecklist}
+          />
+        );
       case "calculator":
         return <CalculatorPage onOpenArticle={setOpenArticle} />;
       case "guide":
         return <GuideListPage onSelectGuide={setSelectedGuideId} />;
       case "checklist":
-        return <ChecklistPage onOpenArticle={setOpenArticle} />;
+        return (
+          <ChecklistPage
+            onOpenArticle={setOpenArticle}
+            initialReason={checklistReason}
+          />
+        );
       case "faq":
         return <FaqPage onOpenArticle={setOpenArticle} />;
       case "script":

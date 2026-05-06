@@ -233,6 +233,7 @@ export const SIMULATOR_RESULTS = {
   "result-claim-death": {
     title: "사망 공제금 청구",
     summary: "공제금 지급대상자는 계약자의 상속인. 분할지급 불가.",
+    reasonKeys: ["death"],
     nextSteps: [
       "사망진단서 (의료법 제3조 의료기관) 확보",
       "가족관계등록부 제증명서, 제적등본 준비",
@@ -256,6 +257,7 @@ export const SIMULATOR_RESULTS = {
   "result-claim-disaster": {
     title: "재난 공제금 청구 (특별재난지역)",
     summary: "특별재난지역 선포 지역의 자연·사회재난 피해 시 청구 가능. 중간정산 가능.",
+    reasonKeys: ["disasterNatural", "disasterSocial"],
     nextSteps: [
       "특별재난지역 선포 확인 서류 확보",
       "사업장 피해사실 증빙 (파손/유실/위험구역 설정)",
@@ -279,6 +281,7 @@ export const SIMULATOR_RESULTS = {
   "result-claim-illness": {
     title: "6개월 이상 요양 필요 질병·부상",
     summary: "진단서 발급일이 공제사유 발생일. 중간정산 가능.",
+    reasonKeys: ["illness"],
     nextSteps: [
       "의료법 제3조 의료기관 진단서 (6개월 이상 요양 필요 명시)",
       "공제사유 발생일 = 진단서 발급일 확인",
@@ -297,6 +300,7 @@ export const SIMULATOR_RESULTS = {
   "result-claim-rehab": {
     title: "회생 / 파산 공제금 청구",
     summary: "법원의 결정문 필수. 회생절차 개시일/파산선고일이 공제사유 발생일. 중간정산 가능.",
+    reasonKeys: ["rehabilitation", "bankruptcy"],
     nextSteps: [
       "법원의 회생절차 개시 결정문 또는 파산선고 결정문",
       "신분증 확인",
@@ -315,6 +319,7 @@ export const SIMULATOR_RESULTS = {
   "result-claim-closure-normal": {
     title: "일반 폐업 공제금 청구",
     summary: "폐업사실증명서 기반 청구. 별표1 제2란 폐업·사망공제금 기준.",
+    reasonKeys: ["closure", "dissolution"],
     nextSteps: [
       "세무서장 발행 폐업사실증명서",
       "법인의 경우 법인등기부등본 (해산등기)",
@@ -334,6 +339,7 @@ export const SIMULATOR_RESULTS = {
   "result-claim-closure-deemed": {
     title: "간주해약 처리 (공제금 X, 해약환급금 O)",
     summary: "현물출자 법인설립 폐업 또는 배우자·자녀 사업양도 폐업은 공제금이 아닌 간주해약환급금 지급.",
+    reasonKeys: ["termination"],
     nextSteps: [
       "별표2 간주해약환급금 지급기준표 적용 안내",
       "부금통산 신청 검토 (1년 6개월 이내)",
@@ -357,6 +363,7 @@ export const SIMULATOR_RESULTS = {
     title: "폐업 공제금 청구 (배우자·자녀 외 양도)",
     summary:
       "배우자·자녀 외의 자에게 사업 전부를 양도한 폐업은 시행령상 폐업 공제사유로 인정되어 공제금 지급 대상.",
+    reasonKeys: ["closure", "dissolution"],
     nextSteps: [
       "세무서장 발행 폐업사실증명서 확보",
       "사업양도 증빙(양도양수계약서 등) 준비 — 양수자가 배우자·자녀가 아님을 확인",
@@ -382,6 +389,7 @@ export const SIMULATOR_RESULTS = {
   "result-claim-aging-ok": {
     title: "노령급부 청구 가능",
     summary: "사업을 계속하셔도 노령급부 사유로 공제금 청구 가능. 분할지급도 검토 가능.",
+    reasonKeys: ["aging"],
     nextSteps: [
       "신분증 (만 60세 이상 확인)",
       "분할지급 옵션 안내 (1천만원 이상 시 5/10/15/20년)",
@@ -417,6 +425,7 @@ export const SIMULATOR_RESULTS = {
   "result-termination-deemed": {
     title: "간주해약 처리",
     summary: "현물출자 법인설립 / 배우자·자녀 사업양도 / 질병·부상 외 사유로 법인대표 퇴임은 간주해약. 별표2 적용.",
+    reasonKeys: ["termination"],
     nextSteps: [
       "별표2 간주해약환급금 지급기준 안내",
       "부금통산 신청 검토",
@@ -438,6 +447,7 @@ export const SIMULATOR_RESULTS = {
   "result-termination-overdue": {
     title: "강제해약 우려 — 정상계약 전환 가능",
     summary: "12개월 이상 연체자는 정상계약 전환신청서 + 1회분 납부로 미납이력 소멸 가능.",
+    reasonKeys: ["termination"],
     nextSteps: [
       "정상계약 전환신청서 작성",
       "부금 1회분 납부",
@@ -456,6 +466,7 @@ export const SIMULATOR_RESULTS = {
   "result-termination-loss": {
     title: "단기 해약 — 원금 손실 사전 고지 필수",
     summary: "1~3회 80%, 4~6회 90% 환급. 원금 손실 발생.",
+    reasonKeys: ["termination"],
     nextSteps: [
       "원금 손실 가능성 사전 고지 (필수)",
       "납부 중지 제도 또는 부금월액 감액 대안 제시",
@@ -474,6 +485,7 @@ export const SIMULATOR_RESULTS = {
   "result-termination-mid": {
     title: "중기 해약 — 별표3 적용",
     summary: "납부부금 100% + 지급이자의 일정 비율 가산 (납부월수에 따라 10~50%).",
+    reasonKeys: ["termination"],
     nextSteps: [
       "정확한 환급금은 중앙회 시스템 조회",
       "기타소득 과세 안내",
@@ -492,6 +504,7 @@ export const SIMULATOR_RESULTS = {
   "result-termination-long": {
     title: "장기 해약 — 경영악화 사유 시 퇴직소득 과세 검토",
     summary: "121회 이상 납부 시 지급이자의 70~95% 가산. 경영악화 해지 시 퇴직소득 과세 가능.",
+    reasonKeys: ["termination"],
     nextSteps: [
       "직전 과세연도 총수입금액 vs 전 3개 과세연도 평균 비교 (20% 이상 감소 여부)",
       "경영악화 해당 시 퇴직소득 과세 검토 → 특별해지사유신고서 제출",

@@ -4,8 +4,10 @@ import { SourceBadge } from "../components/SourceBadge";
 import { WarningBox } from "../components/WarningBox";
 import { cn } from "../lib/format";
 
-export const ChecklistPage = ({ onOpenArticle }) => {
-  const [activeReason, setActiveReason] = useState("closure");
+export const ChecklistPage = ({ onOpenArticle, initialReason }) => {
+  const [activeReason, setActiveReason] = useState(
+    initialReason && REASON_DOCUMENTS[initialReason] ? initialReason : "closure"
+  );
   const [checked, setChecked] = useState({});
 
   const reason = REASON_DOCUMENTS[activeReason];

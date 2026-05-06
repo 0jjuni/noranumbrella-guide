@@ -6,9 +6,10 @@ import { SourceBadge } from "../components/SourceBadge";
 import { WarningBox } from "../components/WarningBox";
 import { SectionTitle } from "../components/SectionTitle";
 import { CopyButton } from "../components/CopyButton";
+import { ChecklistPreview } from "../components/ChecklistPreview";
 import { cn } from "../lib/format";
 
-export const SimulatorPage = ({ onOpenArticle }) => {
+export const SimulatorPage = ({ onOpenArticle, onGoToChecklist }) => {
   const [path, setPath] = useState(["root"]);
   const [resultId, setResultId] = useState(null);
   const [coachMode, setCoachMode] = useState(false);
@@ -220,6 +221,13 @@ export const SimulatorPage = ({ onOpenArticle }) => {
                   {result.customerScript}
                 </p>
               </div>
+
+              {result.reasonKeys && result.reasonKeys.length > 0 && (
+                <ChecklistPreview
+                  reasonKeys={result.reasonKeys}
+                  onGoToChecklist={onGoToChecklist}
+                />
+              )}
             </div>
             <WarningBox items={result.staffWarning} />
           </div>
