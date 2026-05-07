@@ -33,12 +33,10 @@ export const ProductCompare = () => {
     const annualPayment = monthlyAmount * 12;
     const totalPrincipal = monthlyAmount * months;
 
-    // 노란우산: 연 단위 복리 (단순화 — 매월 납부 후 연단위 복리 적립)
+    // 노란우산공제 / 연금저축: 연 단위 복리 (FV 적립식 미래가치 공식)
+    // FV = P × [((1+r)^n - 1) / r], P=연납입액, n=년수
     const calcCompound = (monthly, totalMonths, annualRatePct) => {
       const r = annualRatePct / 100;
-      // 매월 납입 → 연 단위 복리. 단순화: 평균 (totalMonths/2)개월 적립.
-      // 더 정확한 방법은 미래가치 적립식
-      // FV = P × [((1+r)^n - 1) / r] (n=년수)
       const yearsCount = totalMonths / 12;
       const yearlyContribution = monthly * 12;
       if (r === 0) return yearlyContribution * yearsCount;
@@ -47,8 +45,17 @@ export const ProductCompare = () => {
       );
     };
 
+    // 일반 정기적금: 단리 — 매월 납입한 원금별로 잔여 기간만큼 단리 이자
+    // 총 이자 = P × r × N(N+1) / (24)  (P=월납입액, N=총개월수, r=연이율)
+    const calcSimpleSavings = (monthly, totalMonths, annualRatePct) => {
+      const r = annualRatePct / 100;
+      const principal = monthly * totalMonths;
+      const interest = (monthly * r * totalMonths * (totalMonths + 1)) / (2 * 12);
+      return principal + interest;
+    };
+
     const yumamFV = calcCompound(monthlyAmount, months, yumamRate);
-    const savingsFV = calcCompound(monthlyAmount, months, savingsRate);
+    const savingsFV = calcSimpleSavings(monthlyAmount, months, savingsRate);
     const pensionFV = calcCompound(monthlyAmount, months, pensionRate);
 
     // 노란우산 — 연도별 소득공제 절세액 누적
@@ -125,12 +132,12 @@ export const ProductCompare = () => {
     return `[참고용 비교 시뮬레이션 — 가정 기준]
 월 ${formatKRW(monthlyAmount)}을 ${years}년간 납입할 경우 추정 결과:
 
-【노란우산공제】 (가정이율 ${yumamRate}%)
+【노란우산공제】 (가정이율 ${yumamRate}%, 연 단위 복리)
 ▸ 만기 적립금: 약 ${formatKRW(result.yumam.fv)}
 ▸ ${years}년 누적 절세액: 약 ${formatKRW(result.yumam.taxSaving)}
 ▸ 총 혜택 합계: 약 ${formatKRW(result.yumam.totalBenefit)}
 
-【일반 적금】 (가정이율 ${savingsRate}%, 이자소득세 15.4%)
+【일반 적금】 (가정이율 ${savingsRate}%, 단리, 이자소득세 15.4%)
 ▸ 세후 만기액: 약 ${formatKRW(result.savings.net)}
 
 【연금저축】 (가정이율 ${pensionRate}%, 세액공제 13.2%, 한도 600만원)
@@ -336,7 +343,7 @@ export const ProductCompare = () => {
                   적금
                 </span>
                 <span className="text-stone-700">
-                  자유로운 입출금. 이자소득세 15.4% 원천징수. 압류 보호 없음.
+                  단리 이자 산정 (매월 납입분별 잔여기간 단리). 이자소득세 15.4% 원천징수. 압류 보호 없음.
                 </span>
               </div>
               <div className="flex gap-3 items-start">
@@ -373,7 +380,7 @@ export const ProductCompare = () => {
           </div>
 
           <div className="bg-stone-50 border border-stone-200 rounded-md p-3 text-xs text-stone-600 leading-relaxed">
-            <strong className="text-stone-800">계산 가정:</strong> 노란우산공제는 연 단위 복리 적립식 미래가치 공식, 적금은 이자소득세 15.4% 차감, 연금저축은 세액공제 13.2%(보수적 가정) 적용. 수령 단계 과세(퇴직소득세·연금소득세)는 미반영. 실제 상품의 이율·세금 처리는 약관 직접 확인 필요.
+            <strong className="text-stone-800">계산 가정:</strong> 노란우산공제·연금저축은 연 단위 복리 적립식 미래가치 공식, 일반 적금은 단리(매월 납입분별 잔여기간 단리, 이자소득세 15.4% 차감), 연금저축은 세액공제 13.2%(보수적 가정) 적용. 수령 단계 과세(퇴직소득세·연금소득세)는 미반영. 실제 상품의 이율·세금 처리는 약관 직접 확인 필요.
           </div>
         </div>
       </div>
@@ -396,7 +403,7 @@ export const ProductCompare = () => {
           },
           {
             label: "가정 이율 — 일반 적금",
-            value: `${savingsRate.toFixed(1)}% (이자소득세 15.4% 차감)`,
+            value: `${savingsRate.toFixed(1)}% (단리, 이자소득세 15.4% 차감)`,
           },
           {
             label: "가정 이율 — 연금저축",
@@ -422,9 +429,9 @@ export const ProductCompare = () => {
             emphasis: true,
           },
           {
-            label: "일반 적금 — 세후 만기액",
+            label: "일반 적금 — 세후 만기액 (단리)",
             value: formatKRW(result.savings.net),
-            sub: `이자소득세 ${formatKRW(result.savings.tax)} 차감`,
+            sub: `이자 ${formatKRW(result.savings.fv - result.totalPrincipal)} - 이자소득세 ${formatKRW(result.savings.tax)} 차감`,
           },
           {
             label: "연금저축 — 만기 적립금",
@@ -439,15 +446,34 @@ export const ProductCompare = () => {
             value: formatKRW(result.pension.totalBenefit),
           },
         ]}
+        chart={
+          <BarChart
+            width={540}
+            height={160}
+            data={chartData}
+            margin={{ top: 5, right: 15, bottom: 5, left: 0 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" stroke="#d6d3d1" />
+            <XAxis dataKey="name" tick={{ fontSize: 10, fill: "#44403c" }} />
+            <YAxis
+              tickFormatter={(v) => formatKRWShort(v)}
+              tick={{ fontSize: 9, fill: "#78716c" }}
+              width={55}
+            />
+            <Legend wrapperStyle={{ fontSize: 10 }} />
+            <Bar dataKey="원금" stackId="a" fill="#a8a29e" />
+            <Bar dataKey="이자수익" stackId="a" fill="#f59e0b" />
+            <Bar dataKey="절세액" stackId="a" fill="#10b981" />
+          </BarChart>
+        }
         notes={[
           "[상품별 특성]",
-          "· 노란우산공제: 연 복리 적립 + 소득공제 + 공제금 양도·압류·담보 금지 + 무담보 대출 가능. 단, 단기 해약 시 원금 손실, 수령 시 퇴직소득세 별도.",
-          "· 일반 적금: 자유로운 입출금. 이자소득세 15.4% 원천징수. 압류 보호 없음.",
+          "· 노란우산공제: 연 복리 적립 + 소득공제 + 공제금 양도·압류·담보 금지 + 무담보 대출 가능. 단기 해약 시 원금 손실, 수령 시 퇴직소득세 별도.",
+          "· 일반 적금: 단리 이자 산정(매월 납입분별 잔여기간 단리). 이자소득세 15.4% 원천징수. 압류 보호 없음.",
           "· 연금저축: 세액공제 13.2~16.5% (한도 600만원). 만 55세 이후 연금 수령. 중도 해지 시 기타소득세 16.5%. 노란우산과 중복 공제 가능.",
-          "본 비교의 노란우산공제 절세액은 입력한 「소득금액 구간」 기준이며, 다른 소득공제 항목·세법 개정에 따라 달라집니다.",
-          "노란우산공제 수령 시 퇴직소득세·연금저축 수령 시 연금소득세는 본 시뮬레이션에 반영되지 않았습니다.",
+          "노란우산공제 수령 시 퇴직소득세·연금저축 수령 시 연금소득세는 본 시뮬레이션에 미반영.",
         ]}
-        legalBasis="조세특례제한법 제86조의3 (소기업·소상공인 공제부금에 대한 소득공제), 중소기업협동조합법 제119조 (수급권 보호)"
+        legalBasis="조세특례제한법 제86조의3, 중소기업협동조합법 제119조"
       />
     </div>
   );
