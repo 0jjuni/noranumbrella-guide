@@ -222,7 +222,7 @@ export default function App() {
   );
 
   return (
-    <div className="min-h-screen bg-stone-50 text-stone-900" style={{ fontFamily: "'Noto Sans KR', 'Pretendard', system-ui, sans-serif" }}>
+    <div className="min-h-screen bg-stone-50 text-stone-900 print:min-h-0 print:bg-white" style={{ fontFamily: "'Noto Sans KR', 'Pretendard', system-ui, sans-serif" }}>
       {/* Mobile top bar */}
       <header className="md:hidden sticky top-0 z-30 bg-white border-b border-stone-200 flex items-center gap-3 px-3 py-2 print:hidden">
         <button
@@ -262,9 +262,9 @@ export default function App() {
         </aside>
 
         {/* Main */}
-        <main className="flex-1 min-h-screen min-w-0">
+        <main className="flex-1 min-h-screen min-w-0 print:min-h-0">
           <GlobalWarning />
-          <div className="p-4 md:p-8 max-w-6xl">{renderPage()}</div>
+          <div className="p-4 md:p-8 max-w-6xl print:p-0 print:max-w-none">{renderPage()}</div>
         </main>
       </div>
 

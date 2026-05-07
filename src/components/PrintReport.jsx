@@ -20,11 +20,11 @@ export const PrintReport = ({
 
   return (
     <div
-      className="hidden print:block print-report fixed inset-0 bg-white text-stone-900 z-[100] overflow-auto"
+      className="hidden print:block print-report bg-white text-stone-900"
       style={{ fontFamily: "'Noto Sans KR', 'Pretendard', system-ui, sans-serif" }}
       aria-hidden="true"
     >
-      <div className="px-6 py-4 max-w-3xl mx-auto leading-snug">
+      <div className="px-2 py-2 max-w-3xl mx-auto leading-snug">
         {/* 헤더 */}
         <div className="border-b-2 border-stone-900 pb-2 mb-3">
           <div className="flex items-baseline justify-between gap-3">

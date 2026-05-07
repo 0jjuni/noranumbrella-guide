@@ -154,7 +154,7 @@ export const ProductCompare = () => {
 
   return (
     <div className="space-y-5">
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 print:hidden">
         <div className="lg:col-span-2 space-y-4">
           <div className="bg-white border border-stone-200 rounded-md p-5 space-y-4">
             <SectionTitle sub="가정 조건 입력">입력</SectionTitle>
