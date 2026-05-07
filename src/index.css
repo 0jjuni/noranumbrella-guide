@@ -24,3 +24,24 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #a8a29e;
 }
+
+/* 인쇄 시 페이지 레이아웃 */
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm 14mm;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+    color: #1c1917 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* PrintReport가 렌더링될 때 배경 화면 숨김 — fixed 위치라 자연 스택 */
+  .print-report {
+    box-shadow: none !important;
+  }
+}

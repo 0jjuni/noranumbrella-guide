@@ -1,7 +1,7 @@
 import { AlertTriangle } from "lucide-react";
 
 export const GlobalWarning = () => (
-  <div className="bg-red-50 border-b border-red-200 px-6 py-2.5">
+  <div className="bg-red-50 border-b border-red-200 px-6 py-2.5 print:hidden">
     <div className="flex items-start gap-2.5">
       <AlertTriangle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
       <p className="text-xs text-stone-800 leading-relaxed">

@@ -224,7 +224,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-stone-50 text-stone-900" style={{ fontFamily: "'Noto Sans KR', 'Pretendard', system-ui, sans-serif" }}>
       {/* Mobile top bar */}
-      <header className="md:hidden sticky top-0 z-30 bg-white border-b border-stone-200 flex items-center gap-3 px-3 py-2">
+      <header className="md:hidden sticky top-0 z-30 bg-white border-b border-stone-200 flex items-center gap-3 px-3 py-2 print:hidden">
         <button
           onClick={() => setDrawerOpen(true)}
           className="p-1.5 hover:bg-stone-100 rounded-sm"
@@ -250,7 +250,7 @@ export default function App() {
         {/* Sidebar — desktop static, mobile drawer */}
         <aside
           className={cn(
-            "bg-white border-r border-stone-200 flex flex-col",
+            "bg-white border-r border-stone-200 flex flex-col print:hidden",
             // Desktop
             "md:w-60 md:min-h-screen md:static md:translate-x-0",
             // Mobile drawer

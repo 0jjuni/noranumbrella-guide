@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { AlertTriangle, Coins, Info } from "lucide-react";
+import { AlertTriangle, Coins, Info, Printer } from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -13,6 +13,7 @@ import {
 import { INCOME_BRACKETS } from "../../data/tax";
 import { SectionTitle } from "../../components/SectionTitle";
 import { CopyButton } from "../../components/CopyButton";
+import { PrintReport } from "../../components/PrintReport";
 import { cn, formatKRW, formatKRWShort } from "../../lib/format";
 
 /* A. 소득공제 절세효과 계산기 */
@@ -310,11 +311,21 @@ export const TaxSavingCalculator = ({ onOpenArticle }) => {
               </div>
 
               <div className="bg-amber-50/40 border border-amber-200 rounded-md p-4">
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
                   <h4 className="text-sm font-bold text-stone-900">
                     고객 안내 스크립트
                   </h4>
-                  <CopyButton text={generateScript()} />
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => window.print()}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-amber-400 bg-white hover:bg-amber-50 text-amber-800 rounded-sm transition-colors"
+                      title="고객 전달용으로 인쇄 (디스클레이머·입력 조건 포함)"
+                    >
+                      <Printer className="w-3.5 h-3.5" />
+                      인쇄
+                    </button>
+                    <CopyButton text={generateScript()} />
+                  </div>
                 </div>
                 <pre className="text-[12px] leading-relaxed whitespace-pre-wrap font-sans bg-white/70 p-3 rounded-sm border border-amber-200/60 text-stone-800">
                   {generateScript()}
@@ -335,6 +346,64 @@ export const TaxSavingCalculator = ({ onOpenArticle }) => {
           </div>
         </div>
       </div>
+
+      {/* 인쇄용 — 화면에는 숨김, window.print() 호출 시에만 노출 */}
+      {!result.isBlocked && (
+        <PrintReport
+          title="소득공제 절세효과 추정 안내"
+          subtitle="노란우산공제 가입에 따른 연간 추정 절세액"
+          disclaimer={`본 절세액은 추정치이며, 다른 소득공제 항목, 추가 소득, 종합소득세율 변경 등에 따라 실제 절세액은 달라질 수 있습니다.\n적용 한계세율은 단일 추정치로 다른 소득·공제 합산 결과에 따라 달라질 수 있습니다.\n정확한 절세효과는 세무 전문가 또는 국세청 상담을 권해 드립니다.`}
+          inputs={[
+            {
+              label: "사업자 유형",
+              value: businessType === "individual" ? "개인사업자" : "법인대표",
+            },
+            { label: "소득금액 구간", value: bracket.rangeText },
+            ...(businessType === "corp_rep"
+              ? [
+                  {
+                    label: "총급여 8천만원 초과",
+                    value: salaryOver80m
+                      ? "예 (근로소득금액 공제 불가)"
+                      : "아니오",
+                  },
+                ]
+              : []),
+            { label: "월 부금월액", value: formatKRW(monthlyAmount) },
+          ]}
+          results={[
+            { label: "연 납입액", value: formatKRW(result.annualPayment) },
+            {
+              label: "적용 가능 소득공제 한도",
+              value: formatKRW(result.deductionLimit),
+              sub: bracket.rangeText,
+            },
+            {
+              label: "실제 소득공제액",
+              value: formatKRW(result.actualDeduction),
+            },
+            {
+              label: "추정 한계세율",
+              value: `${(result.marginalRate * 100).toFixed(1)}%`,
+              sub: bracket.rateLabel,
+            },
+            {
+              label: "추정 절세액 (연)",
+              value: formatKRW(result.taxSaving),
+              emphasis: true,
+              sub: `월 평균 약 ${formatKRW(result.monthlyTaxSaving)}`,
+            },
+          ]}
+          notes={[
+            "추정 절세액 = 실제 소득공제액 × 추정 한계세율 (지방소득세 포함)",
+            "한계세율은 종합소득세율표(2025년 기준)에 지방소득세 10%를 가산한 단순 추정치입니다.",
+            "다른 소득공제·세액공제 항목, 추가 소득 발생 시 실제 절세액은 변동될 수 있습니다.",
+            "법인대표 총급여 8천만원 초과 시 근로소득금액에서 소득공제를 받으실 수 없습니다.",
+            "부동산임대업소득자는 본 공제 대상에서 제외됩니다.",
+          ]}
+          legalBasis="조세특례제한법 제86조의3 (소기업·소상공인 공제부금에 대한 소득공제)"
+        />
+      )}
     </div>
   );
 };

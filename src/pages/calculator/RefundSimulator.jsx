@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { AlertTriangle, TrendingDown, TrendingUp } from "lucide-react";
+import { AlertTriangle, TrendingDown, TrendingUp, Printer } from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -13,6 +13,7 @@ import {
 import { REFUND_TABLE_GENERAL, REFUND_TABLE_DEEMED } from "../../data/tax";
 import { SectionTitle } from "../../components/SectionTitle";
 import { CopyButton } from "../../components/CopyButton";
+import { PrintReport } from "../../components/PrintReport";
 import { cn, formatKRW, formatKRWShort } from "../../lib/format";
 
 /* B. 해약환급금 시나리오 계산기 */
@@ -345,11 +346,21 @@ ${
           </div>
 
           <div className="bg-amber-50/40 border border-amber-200 rounded-md p-4">
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
               <h4 className="text-sm font-bold text-stone-900">
                 고객 안내 스크립트
               </h4>
-              <CopyButton text={generateScript()} />
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => window.print()}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-amber-400 bg-white hover:bg-amber-50 text-amber-800 rounded-sm transition-colors"
+                  title="고객 전달용으로 인쇄 (디스클레이머·입력 조건 포함)"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  인쇄
+                </button>
+                <CopyButton text={generateScript()} />
+              </div>
             </div>
             <pre className="text-[12px] leading-relaxed whitespace-pre-wrap font-sans bg-white/70 p-3 rounded-sm border border-amber-200/60 text-stone-800">
               {generateScript()}
@@ -368,6 +379,57 @@ ${
           </div>
         </div>
       </div>
+
+      {/* 인쇄용 — 화면 숨김, window.print() 호출 시 노출 */}
+      <PrintReport
+        title="해약환급금 시나리오 안내"
+        subtitle={`${refundTypeLabel[refundType]} · 추정 시뮬레이션`}
+        disclaimer={`본 시뮬레이션은 가정 기준이율 ${assumedRate.toFixed(1)}% (단리 평균)을 적용한 단순 추정치입니다.\n실제 환급금은 매 분기 변동되는 기준이율, 부가지급률, 차등지급이율표(연 단위 복리)에 따라 산정되므로 정확한 금액은 중앙회 시스템 조회로 확인해야 합니다.\n${
+          result.refund < result.principal
+            ? "⚠ 단기 해약 시 원금 손실이 발생합니다. 일시적 사정이라면 부금납부 중지(재해/입원/경영악화 6개월, 휴업/출산 1년) 또는 부금월액 감액(3개월 이상 납입 후) 등의 대안을 우선 검토해 주세요."
+            : ""
+        }`.trim()}
+        inputs={[
+          {
+            label: "해약 유형",
+            value: refundTypeLabel[refundType],
+          },
+          { label: "월 부금월액", value: formatKRW(monthlyAmount) },
+          {
+            label: "부금납부월수",
+            value: `${paidMonths}회 (${(paidMonths / 12).toFixed(1)}년)`,
+          },
+          { label: "가정 기준이율", value: `${assumedRate.toFixed(1)}%` },
+        ]}
+        results={[
+          { label: "납부원금", value: formatKRW(result.principal) },
+          {
+            label: "적립이자 추정",
+            value: formatKRW(result.interestEstimate),
+            sub: `단리 평균(부금납부월수 / 2개월) 적용 추정`,
+          },
+          {
+            label: "추정 환급금",
+            value: formatKRW(result.refund),
+            emphasis: true,
+            sub: `납부원금 대비 ${result.lossPercent >= 0 ? "+" : ""}${result.lossPercent.toFixed(1)}%${
+              result.refund < result.principal ? " (원금 손실)" : ""
+            }`,
+          },
+          {
+            label: "적용 기준",
+            value: result.calcDescription,
+          },
+        ]}
+        notes={[
+          `[유지 시 비교]\n· 현재 해약: ${formatKRW(result.scenarios[0].refund)}\n· 1년 더 유지: ${formatKRW(result.scenarios[1].refund)}\n· 3년 더 유지: ${formatKRW(result.scenarios[2].refund)}\n· 5년 더 유지: ${formatKRW(result.scenarios[3].refund)}`,
+          "별표2(간주해약): 1~12회 납부부금만(이자 미부리), 13~36회 100%+이자 70%, 37회+ 부리적립 전액",
+          "별표3(일반해약): 1~3회 80% / 4~6회 90% / 7~12회 100% / 13회+부터 적립이자 가산(10~95%)",
+          "부정행위 강제해약 시 일반해약환급금의 80%만 지급",
+          "기본 과세는 기타소득세 16.5%(지방세 포함). 단, 120개월+경영악화 또는 해지 전 6개월 내 5가지 사유 충족 시 「특별해지사유신고서」 제출로 퇴직소득 과세 적용 가능",
+        ]}
+        legalBasis="약관 제24조(해약환급금), 별표2·별표3, 조세특례제한법 시행령 제80조의3"
+      />
     </div>
   );
 };
