@@ -12,7 +12,6 @@ import {
 } from "recharts";
 import { INCOME_BRACKETS } from "../../data/tax";
 import { SectionTitle } from "../../components/SectionTitle";
-import { CopyButton } from "../../components/CopyButton";
 import { PrintReport } from "../../components/PrintReport";
 import { cn, formatKRW, formatKRWShort } from "../../lib/format";
 
@@ -235,6 +234,18 @@ export const TaxSavingCalculator = ({ onOpenArticle }) => {
                   <Coins className="w-10 h-10 text-amber-500" />
                 </div>
 
+                <button
+                  onClick={() => window.print()}
+                  className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-3 bg-stone-900 hover:bg-stone-800 text-white rounded-md font-semibold transition-colors"
+                  title="이 결과 전체를 디스클레이머·입력 조건 포함하여 인쇄"
+                >
+                  <Printer className="w-4 h-4" />
+                  <span>고객 전달용 인쇄</span>
+                  <span className="text-[11px] font-normal text-stone-300 hidden sm:inline">
+                    PDF 저장 가능 · 디스클레이머·입력 조건 포함
+                  </span>
+                </button>
+
                 <div className="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-amber-200">
                   <div>
                     <div className="text-[11px] uppercase tracking-wider text-stone-500 font-semibold mb-0.5">
@@ -311,22 +322,12 @@ export const TaxSavingCalculator = ({ onOpenArticle }) => {
               </div>
 
               <div className="bg-amber-50/40 border border-amber-200 rounded-md p-4">
-                <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
-                  <h4 className="text-sm font-bold text-stone-900">
-                    고객 안내 스크립트
-                  </h4>
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      onClick={() => window.print()}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-amber-400 bg-white hover:bg-amber-50 text-amber-800 rounded-sm transition-colors"
-                      title="고객 전달용으로 인쇄 (디스클레이머·입력 조건 포함)"
-                    >
-                      <Printer className="w-3.5 h-3.5" />
-                      인쇄
-                    </button>
-                    <CopyButton text={generateScript()} />
-                  </div>
-                </div>
+                <h4 className="text-sm font-bold text-stone-900 mb-2">
+                  고객 안내 멘트{" "}
+                  <span className="text-xs font-normal text-stone-500">
+                    (직원 참고용 — 인쇄 안 됨)
+                  </span>
+                </h4>
                 <pre className="text-[12px] leading-relaxed whitespace-pre-wrap font-sans bg-white/70 p-3 rounded-sm border border-amber-200/60 text-stone-800">
                   {generateScript()}
                 </pre>
