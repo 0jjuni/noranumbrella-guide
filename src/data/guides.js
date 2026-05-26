@@ -199,7 +199,7 @@ export const GUIDES = [
       "2. 사망",
       "3. 질병·부상에 의한 법인대표 퇴임",
       "4. 만 60세 이상 + 부금납부월수 120개월 이상 노령급부 청구",
-      "5. 자연재난·사회재난(특별재난지역 한정)으로 사업장 피해",
+      "5. 자연재난 또는 사회재난(특별재난지역으로 선포된 지역에 한함)으로 사업장 피해",
       "6. 6개월 이상 요양 필요 질병·부상",
       "7. 회생절차개시 결정 (일반·간이·개인회생)",
       "8. 파산선고",
@@ -649,12 +649,13 @@ export const REASON_DOCUMENTS = {
     name: "폐업 (개인사업자)",
     docs: [
       { name: "공제금 청구서 (중앙회 양식)", required: true },
-      { name: "세무서장 발행 폐업사실증명서", required: true },
+      { name: "세무서장 발행 폐업사실증명서", required: true, autoLookup: true },
       { name: "신분증 (사진 부착 정부발행)", required: true },
-      { name: "연금보험료 등 소득세액공제확인서 (국세청)", required: false, note: "미제출 시 원천징수 불리, 5년 내 제출 시 환급 가능" },
+      { name: "연금보험료 등 소득세액공제확인서 (국세청)", required: false, autoLookup: true, note: "미제출 시 원천징수 불리, 5년 내 제출 시 환급 가능" },
     ],
-    sourceReference: { articles: ["제17조 제1항 제1호", "제29조"] },
+    sourceReference: { articles: ["제17조 제1항 제1호", "제29조", "행정정보 공동이용"] },
     staffWarning: [
+      "「행정정보 공동이용 동의」 시 폐업사실증명서·소득세액공제확인서 자동 조회 가능 (신분증·청구서만 받으면 됨)",
       "무등록 소상공인은 사업자등록 미이행 시 폐업 사유 적용 배제",
       "현물출자 법인설립 또는 배우자·자녀 사업양도는 간주해약 처리",
     ],
@@ -664,12 +665,15 @@ export const REASON_DOCUMENTS = {
     docs: [
       { name: "공제금 청구서", required: true },
       { name: "법인등기부등본 (해산등기)", required: true },
-      { name: "세무서장 발행 폐업사실증명서", required: true },
+      { name: "세무서장 발행 폐업사실증명서", required: true, autoLookup: true },
       { name: "법인대표자 신분증", required: true },
-      { name: "연금보험료 등 소득세액공제확인서", required: false },
+      { name: "연금보험료 등 소득세액공제확인서", required: false, autoLookup: true },
     ],
-    sourceReference: { articles: ["제17조 제1항 제1호", "제29조"] },
-    staffWarning: ["법인 해산 절차 완료 여부 확인"],
+    sourceReference: { articles: ["제17조 제1항 제1호", "제29조", "행정정보 공동이용"] },
+    staffWarning: [
+      "「행정정보 공동이용 동의」 시 폐업사실증명서·소득세액공제확인서 자동 조회 가능",
+      "법인 해산 절차 완료 여부 확인",
+    ],
   },
   death: {
     name: "사망",
@@ -679,7 +683,7 @@ export const REASON_DOCUMENTS = {
       { name: "가족관계등록부 제증명서, 제적등본", required: true },
       { name: "상속인 신분증", required: true },
       { name: "수급권자 2인 이상 시 대표자 지정서", required: false, note: "수급권자가 2인 이상인 경우" },
-      { name: "연금보험료 등 소득세액공제확인서", required: false },
+      { name: "연금보험료 등 소득세액공제확인서", required: false, autoLookup: true },
     ],
     sourceReference: { articles: ["제17조 제1항 제2호", "제23조", "제28조", "제29조"] },
     staffWarning: [
@@ -696,7 +700,7 @@ export const REASON_DOCUMENTS = {
       { name: "법인등기부등본 (대표자 변경 등기)", required: true },
       { name: "질병·부상 진단서", required: true },
       { name: "신분증", required: true },
-      { name: "연금보험료 등 소득세액공제확인서", required: false },
+      { name: "연금보험료 등 소득세액공제확인서", required: false, autoLookup: true },
     ],
     sourceReference: { articles: ["제17조 제1항 제3호", "제29조"] },
     staffWarning: [
@@ -709,7 +713,7 @@ export const REASON_DOCUMENTS = {
     docs: [
       { name: "공제금 청구서", required: true },
       { name: "신분증 (만 60세 이상 확인)", required: true },
-      { name: "연금보험료 등 소득세액공제확인서", required: false },
+      { name: "연금보험료 등 소득세액공제확인서", required: false, autoLookup: true },
     ],
     sourceReference: { articles: ["제17조 제1항 제4호"] },
     staffWarning: [
@@ -719,17 +723,18 @@ export const REASON_DOCUMENTS = {
     ],
   },
   disasterNatural: {
-    name: "자연재난 (특별재난지역)",
+    name: "자연재난",
     docs: [
       { name: "공제금 청구서", required: true },
-      { name: "특별재난지역 선포 확인서류", required: true, note: "재난 및 안전관리 기본법 제60조 근거" },
+      { name: "재난 피해사실 증빙", required: true, note: "재난 및 안전관리 기본법 제3조 제1호 가목 자연재난" },
       { name: "사업장 피해사실 증빙", required: true, note: "파손/유실/위험구역 설정 등" },
       { name: "신분증", required: true },
-      { name: "연금보험료 등 소득세액공제확인서", required: false },
+      { name: "연금보험료 등 소득세액공제확인서", required: false, autoLookup: true },
     ],
     sourceReference: { articles: ["제17조 제1항 제5호"] },
     staffWarning: [
       "공제사유 발생일 = 피해일",
+      "자연재난은 특별재난지역 선포 여부와 무관 (단서는 사회재난에만 적용)",
       "중간정산 청구 가능, 청구 후에도 가입 유지",
       "구체적 증빙서류 양식은 중앙회 안내 확인 필요",
     ],
@@ -741,7 +746,7 @@ export const REASON_DOCUMENTS = {
       { name: "특별재난지역 선포 확인서류", required: true },
       { name: "사업장 피해사실 증빙", required: true },
       { name: "신분증", required: true },
-      { name: "연금보험료 등 소득세액공제확인서", required: false },
+      { name: "연금보험료 등 소득세액공제확인서", required: false, autoLookup: true },
     ],
     sourceReference: { articles: ["제17조 제1항 제5호"] },
     staffWarning: [
@@ -756,7 +761,7 @@ export const REASON_DOCUMENTS = {
       { name: "공제금 청구서", required: true },
       { name: "진단서 (6개월 이상 요양 필요 명시)", required: true },
       { name: "신분증", required: true },
-      { name: "연금보험료 등 소득세액공제확인서", required: false },
+      { name: "연금보험료 등 소득세액공제확인서", required: false, autoLookup: true },
     ],
     sourceReference: { articles: ["제17조 제1항 제6호"] },
     staffWarning: [
@@ -771,7 +776,7 @@ export const REASON_DOCUMENTS = {
       { name: "공제금 청구서", required: true },
       { name: "법원의 회생절차개시 결정문", required: true, note: "일반회생/간이회생/개인회생" },
       { name: "신분증", required: true },
-      { name: "연금보험료 등 소득세액공제확인서", required: false },
+      { name: "연금보험료 등 소득세액공제확인서", required: false, autoLookup: true },
     ],
     sourceReference: { articles: ["제17조 제1항 제7호"] },
     staffWarning: [
@@ -786,7 +791,7 @@ export const REASON_DOCUMENTS = {
       { name: "공제금 청구서", required: true },
       { name: "법원의 파산선고 결정문", required: true },
       { name: "신분증", required: true },
-      { name: "연금보험료 등 소득세액공제확인서", required: false },
+      { name: "연금보험료 등 소득세액공제확인서", required: false, autoLookup: true },
     ],
     sourceReference: { articles: ["제17조 제1항 제8호"] },
     staffWarning: [
@@ -799,7 +804,7 @@ export const REASON_DOCUMENTS = {
     docs: [
       { name: "해약환급금 청구서", required: true },
       { name: "신분증", required: true },
-      { name: "연금보험료 등 소득세액공제확인서", required: false, note: "기타소득 과세, 미제출 시 불리" },
+      { name: "연금보험료 등 소득세액공제확인서", required: false, autoLookup: true, note: "기타소득 과세, 미제출 시 불리" },
       {
         name: "특별해지사유신고서 (조특법 시행규칙 별지 제58호의3서식)",
         required: false,

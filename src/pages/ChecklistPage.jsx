@@ -57,6 +57,23 @@ export const ChecklistPage = ({ onOpenArticle, initialReason }) => {
             </div>
             <p className="text-xs text-stone-500 mb-4">상담 중 체크박스로 진행 상황을 표시하세요.</p>
 
+            {reason.docs.some((d) => d.autoLookup) && (
+              <div className="mb-4 flex items-start gap-2 p-3 bg-blue-50/60 border border-blue-200 rounded-sm">
+                <span className="text-[10px] font-bold uppercase text-blue-700 bg-blue-100 border border-blue-200 px-1.5 py-0.5 rounded-sm flex-shrink-0 mt-0.5">
+                  자동조회
+                </span>
+                <p className="text-xs text-stone-700 leading-relaxed flex-1">
+                  「행정정보 공동이용 동의」 시 국세청·행안부 연계로 자동 조회 가능 — 고객이 별도로 가져오지 않으셔도 됩니다.{" "}
+                  <button
+                    onClick={() => onOpenArticle?.("행정정보 공동이용")}
+                    className="text-blue-700 hover:text-blue-800 underline font-medium"
+                  >
+                    근거 보기
+                  </button>
+                </p>
+              </div>
+            )}
+
             <div className="space-y-2">
               {reason.docs.map((doc, idx) => {
                 const key = `${activeReason}-${idx}`;
@@ -78,7 +95,7 @@ export const ChecklistPage = ({ onOpenArticle, initialReason }) => {
                       className="mt-0.5 w-4 h-4 accent-amber-600"
                     />
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-0.5">
+                      <div className="flex flex-wrap items-center gap-2 mb-0.5">
                         <span className={cn("text-sm font-semibold", isChecked && "line-through text-stone-500")}>
                           {doc.name}
                         </span>
@@ -91,6 +108,19 @@ export const ChecklistPage = ({ onOpenArticle, initialReason }) => {
                           <span className="text-[10px] font-bold uppercase text-stone-500 bg-stone-100 px-1.5 py-0.5 rounded-sm">
                             권장
                           </span>
+                        )}
+                        {doc.autoLookup && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              onOpenArticle?.("행정정보 공동이용");
+                            }}
+                            className="text-[10px] font-bold uppercase text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-1.5 py-0.5 rounded-sm transition-colors"
+                            title="행정정보 공동이용 동의 시 국세청 연계로 자동 조회 가능"
+                          >
+                            자동조회
+                          </button>
                         )}
                       </div>
                       {doc.note && (

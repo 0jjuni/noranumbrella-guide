@@ -214,8 +214,8 @@ export default function App() {
           </a>
         </div>
         <div className="text-[9px] text-stone-400 text-center leading-relaxed px-1">
-          v1.5 · 약관 2026.1.1 + 조특법 2026.2.27<br />
-          + 중협법 2026.6.3 반영
+          v1.5 · 약관 2026.1.1 + 조특법 법률 2025.7.1<br />
+          + 시행령 2026.2.27 + 중협법 2026.6.3 반영
         </div>
       </div>
     </>

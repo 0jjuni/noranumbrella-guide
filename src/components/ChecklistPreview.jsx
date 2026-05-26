@@ -62,7 +62,17 @@ export const ChecklistPreview = ({ reasonKeys = [], onGoToChecklist }) => {
             <span className="text-[10px] font-bold uppercase text-red-600 bg-red-50 px-1.5 py-0.5 rounded-sm flex-shrink-0 mt-0.5">
               필수
             </span>
-            <span className="leading-relaxed">{doc.name}</span>
+            <span className="leading-relaxed flex-1">
+              {doc.name}
+              {doc.autoLookup && (
+                <span
+                  className="ml-1.5 text-[9px] font-bold uppercase text-blue-700 bg-blue-50 border border-blue-200 px-1 py-0.5 rounded-sm align-middle"
+                  title="행정정보 공동이용 동의 시 자동 조회 가능"
+                >
+                  자동조회
+                </span>
+              )}
+            </span>
           </div>
         ))}
         {optional.length > 0 && (
@@ -75,7 +85,17 @@ export const ChecklistPreview = ({ reasonKeys = [], onGoToChecklist }) => {
                 <span className="text-[10px] font-bold uppercase text-stone-500 bg-stone-100 px-1.5 py-0.5 rounded-sm flex-shrink-0 mt-0.5">
                   권장
                 </span>
-                <span className="leading-relaxed">{doc.name}</span>
+                <span className="leading-relaxed flex-1">
+                  {doc.name}
+                  {doc.autoLookup && (
+                    <span
+                      className="ml-1.5 text-[9px] font-bold uppercase text-blue-700 bg-blue-50 border border-blue-200 px-1 py-0.5 rounded-sm align-middle"
+                      title="행정정보 공동이용 동의 시 자동 조회 가능"
+                    >
+                      자동조회
+                    </span>
+                  )}
+                </span>
               </div>
             ))}
           </div>
