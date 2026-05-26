@@ -36,6 +36,19 @@ const NAV_ITEMS = [
   { id: "faq", label: "FAQ 검색", icon: HelpCircle },
 ];
 
+const VALID_PAGES = NAV_ITEMS.map((i) => i.id);
+
+/* Hash 라우팅 — "#/page" 또는 "#/page/sub" 형식.
+   sub는 가이드 ID (guide/guide-payment-01) 또는 체크리스트 사유 (checklist/closure) */
+const parseHash = () => {
+  const raw = (window.location.hash || "").replace(/^#\/?/, "");
+  if (!raw) return { page: "dashboard", sub: null };
+  const [page, ...rest] = raw.split("/");
+  return { page, sub: rest.join("/") || null };
+};
+
+const formatHash = (page, sub) => (sub ? `#/${page}/${sub}` : `#/${page}`);
+
 const Brand = () => (
   <div className="flex items-center gap-2.5">
     <div className="relative w-9 h-9 flex-shrink-0">
@@ -66,28 +79,39 @@ const Brand = () => (
   </div>
 );
 
+const normalizeRoute = (r) =>
+  VALID_PAGES.includes(r.page) ? r : { page: "dashboard", sub: null };
+
 export default function App() {
-  const [page, setPage] = useState("dashboard");
-  const [selectedGuideId, setSelectedGuideId] = useState(null);
+  const [route, setRoute] = useState(() => normalizeRoute(parseHash()));
   const [openArticle, setOpenArticle] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [checklistReason, setChecklistReason] = useState(null);
 
-  const selectedGuide = GUIDES.find((g) => g.id === selectedGuideId);
+  /* URL hash 변경 감지 — 브라우저 뒤로가기/앞으로가기·외부 링크 진입 모두 처리 */
+  useEffect(() => {
+    const handler = () => setRoute(normalizeRoute(parseHash()));
+    window.addEventListener("hashchange", handler);
+    return () => window.removeEventListener("hashchange", handler);
+  }, []);
 
-  const handleNavigate = (p) => {
-    setPage(p);
-    setSelectedGuideId(null);
+  const { page, sub } = route;
+  const selectedGuide =
+    page === "guide" && sub ? GUIDES.find((g) => g.id === sub) : null;
+  const checklistReason = page === "checklist" ? sub : null;
+
+  /* 라우트 변경 — URL hash 수정 → hashchange 이벤트로 자동 setRoute */
+  const navigate = (p, s = null) => {
+    const next = formatHash(p, s);
+    if (window.location.hash !== next) {
+      window.location.hash = next;
+    }
     setDrawerOpen(false);
-    if (p !== "checklist") setChecklistReason(null);
   };
 
-  const handleGoToChecklist = (reasonKey) => {
-    setChecklistReason(reasonKey);
-    setPage("checklist");
-    setSelectedGuideId(null);
-    setDrawerOpen(false);
-  };
+  const handleNavigate = (p) => navigate(p);
+  const handleGoToChecklist = (reasonKey) => navigate("checklist", reasonKey);
+  const handleSelectGuide = (guideId) => navigate("guide", guideId);
+  const handleBackToGuideList = () => navigate("guide");
 
   useEffect(() => {
     if (!drawerOpen) return;
@@ -101,7 +125,7 @@ export default function App() {
       return (
         <GuideDetailPage
           guide={selectedGuide}
-          onBack={() => setSelectedGuideId(null)}
+          onBack={handleBackToGuideList}
           onOpenArticle={setOpenArticle}
         />
       );
@@ -121,7 +145,7 @@ export default function App() {
       case "calculator":
         return <CalculatorPage onOpenArticle={setOpenArticle} />;
       case "guide":
-        return <GuideListPage onSelectGuide={setSelectedGuideId} />;
+        return <GuideListPage onSelectGuide={handleSelectGuide} />;
       case "checklist":
         return (
           <ChecklistPage
@@ -170,9 +194,13 @@ export default function App() {
           const Icon = item.icon;
           const isActive = page === item.id;
           return (
-            <button
+            <a
               key={item.id}
-              onClick={() => handleNavigate(item.id)}
+              href={formatHash(item.id)}
+              onClick={(e) => {
+                e.preventDefault();
+                handleNavigate(item.id);
+              }}
               className={cn(
                 "w-full flex items-center gap-2.5 px-3 py-2 text-sm rounded-sm transition-colors relative",
                 isActive
@@ -194,7 +222,7 @@ export default function App() {
                   {item.badge}
                 </span>
               )}
-            </button>
+            </a>
           );
         })}
       </nav>
