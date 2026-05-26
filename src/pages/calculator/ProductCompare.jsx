@@ -77,13 +77,7 @@ export const ProductCompare = ({ onOpenArticle }) => {
       ? monthlyAmount * months
       : compoundFV(monthlyAmount, months, yumamRate);
     const isNorengEligible = months >= 120;
-    // 두 사유 모두 수령 시 퇴직소득세 (추정 8.8%)
-    const yumamTaxRate = 0.088;
-    const yumamClosureTax = yumamClosureRefund * yumamTaxRate;
-    const yumamClosureNet = yumamClosureRefund - yumamClosureTax;
-    const yumamNorengTax = yumamNorengRefund * yumamTaxRate;
-    const yumamNorengNet = yumamNorengRefund - yumamNorengTax;
-    // 소득공제 절세액 누적
+    // 소득공제 절세액 누적 (가입 단계에서 매년 받는 절세이므로 세전 합계에 포함)
     const yumamDeduction = Math.min(annualPayment, bracket.deductionLimit);
     const yumamTaxSavingAnnual = yumamDeduction * bracket.marginalRate;
     const yumamTaxSavingTotal = yumamTaxSavingAnnual * years;
@@ -107,9 +101,6 @@ export const ProductCompare = ({ onOpenArticle }) => {
 
     /* === 일반 적금 === */
     const savingsFV = simpleSavingsFV(monthlyAmount, months, savingsRate);
-    const savingsInterest = savingsFV - totalPrincipal;
-    const savingsTax = savingsInterest * 0.154; // 이자소득세 15.4%
-    const savingsNet = savingsFV - savingsTax;
 
     /* === 연금저축 === */
     // 한도 600만원 — 사업/근로소득금액 ≤ 4천만(혹은 종합 4,500만 / 총급여 5,500만 이하)이면 16.5%, 외 13.2%
@@ -119,16 +110,13 @@ export const ProductCompare = ({ onOpenArticle }) => {
     const pensionTaxSavingAnnual = pensionDeduction * pensionCreditRate;
     const pensionTaxSavingTotal = pensionTaxSavingAnnual * years;
     const pensionFV = compoundFV(monthlyAmount, months, pensionRate);
-    // 만 55세 이후 연금 수령 가정. 연금소득세 평균 5.5% (지방세 포함) 추정
-    const pensionTaxRate = 0.055;
-    const pensionTax = pensionFV * pensionTaxRate;
-    const pensionNet = pensionFV - pensionTax;
 
-    /* === 총 혜택 합계 (세후 만기액 + 누적 절세액 + 장려금) === */
-    const yumamClosureTotal = yumamClosureNet + yumamTaxSavingTotal + incentiveTotal;
-    const yumamNorengTotal = yumamNorengNet + yumamTaxSavingTotal + incentiveTotal;
-    const savingsTotal = savingsNet;
-    const pensionTotal = pensionNet + pensionTaxSavingTotal;
+    /* === 총 혜택 합계 (세전 만기액 + 누적 절세액·세액공제 + 장려금)
+       수령 시 과세는 변수가 많아 본 시뮬에서 별도 차감하지 않음 */
+    const yumamClosureTotal = yumamClosureRefund + yumamTaxSavingTotal + incentiveTotal;
+    const yumamNorengTotal = yumamNorengRefund + yumamTaxSavingTotal + incentiveTotal;
+    const savingsTotal = savingsFV;
+    const pensionTotal = pensionFV + pensionTaxSavingTotal;
 
     const products = [
       {
@@ -138,10 +126,7 @@ export const ProductCompare = ({ onOpenArticle }) => {
         color: "amber",
         principal: totalPrincipal,
         fv: yumamClosureRefund,
-        tax: yumamClosureTax,
-        taxRate: yumamTaxRate,
-        taxLabel: "퇴직소득세 추정",
-        net: yumamClosureNet,
+        taxNote: "수령 시 퇴직소득세 별도 (근속·환산급여공제로 변동)",
         taxSaving: yumamTaxSavingTotal,
         taxSavingLabel: "소득공제 절세액",
         incentive: incentiveTotal,
@@ -156,10 +141,7 @@ export const ProductCompare = ({ onOpenArticle }) => {
         color: "amber",
         principal: totalPrincipal,
         fv: yumamNorengRefund,
-        tax: yumamNorengTax,
-        taxRate: yumamTaxRate,
-        taxLabel: "퇴직소득세 추정",
-        net: yumamNorengNet,
+        taxNote: "수령 시 퇴직소득세 별도",
         taxSaving: yumamTaxSavingTotal,
         taxSavingLabel: "소득공제 절세액",
         incentive: incentiveTotal,
@@ -176,15 +158,12 @@ export const ProductCompare = ({ onOpenArticle }) => {
         color: "stone",
         principal: totalPrincipal,
         fv: savingsFV,
-        tax: savingsTax,
-        taxRate: 0.154,
-        taxLabel: "이자소득세",
-        net: savingsNet,
+        taxNote: "수령 시 이자소득세 15.4% 원천징수 (적용 후 실수령 별도)",
         taxSaving: 0,
         taxSavingLabel: "절세 혜택 없음",
         incentive: 0,
         total: savingsTotal,
-        scenario: "단리 이자 산정 + 이자소득세 15.4% 차감",
+        scenario: "단리 이자 산정 (매월 납입분별 잔여기간 단리)",
         warning: false,
       },
       {
@@ -194,15 +173,12 @@ export const ProductCompare = ({ onOpenArticle }) => {
         color: "blue",
         principal: totalPrincipal,
         fv: pensionFV,
-        tax: pensionTax,
-        taxRate: pensionTaxRate,
-        taxLabel: "연금소득세 추정",
-        net: pensionNet,
+        taxNote: "만 55세+ 수령 시 연금소득세 / 중도해지 시 기타소득세 16.5%",
         taxSaving: pensionTaxSavingTotal,
         taxSavingLabel: `세액공제 (${(pensionCreditRate * 100).toFixed(1)}%, 한도 600만)`,
         incentive: 0,
         total: pensionTotal,
-        scenario: "만 55세+ 연금 수령 가정 · 중도해지 시 기타소득세 16.5%",
+        scenario: "만 55세+ 연금 수령 가정",
         warning: false,
       },
     ];
@@ -231,7 +207,7 @@ export const ProductCompare = ({ onOpenArticle }) => {
 
   const chartData = result.products.map((p) => ({
     name: p.name.replace("노란우산 (", "").replace(")", ""),
-    "세후 이자수익": Math.max(0, p.net - p.principal),
+    "이자수익": Math.max(0, p.fv - p.principal),
     절세액: p.taxSaving,
     장려금: p.incentive,
   }));
@@ -240,15 +216,15 @@ export const ProductCompare = ({ onOpenArticle }) => {
     const lines = result.products
       .map(
         (p) =>
-          `【${p.name}】 세후 만기 ${formatKRW(p.net)} + 누적 절세 ${formatKRW(p.taxSaving)}${p.incentive > 0 ? ` + 장려금 ${formatKRW(p.incentive)}` : ""} = 총 혜택 ${formatKRW(p.total)}`
+          `【${p.name}】 만기 ${formatKRW(p.fv)} + 누적 절세 ${formatKRW(p.taxSaving)}${p.incentive > 0 ? ` + 장려금 ${formatKRW(p.incentive)}` : ""} = 총 혜택 ${formatKRW(p.total)}`
       )
       .join("\n");
-    return `[가입 시 비교 안내 — 추정]
+    return `[가입 시 비교 안내 — 추정·세전 기준]
 월 ${formatKRW(monthlyAmount)} × ${years}년 납입 시 (총 ${formatKRW(result.totalPrincipal)})
 
 ${lines}
 
-💡 가장 유리한 상품은 「${result.best.name}」 — 총 혜택 약 ${formatKRW(result.best.total)} (납부원금 대비 +${(((result.best.total - result.totalPrincipal) / result.totalPrincipal) * 100).toFixed(1)}%)
+💡 가장 유리한 상품은 「${result.best.name}」 — 총 혜택 약 ${formatKRW(result.best.total)} (납부원금 대비 +${(((result.best.total - result.totalPrincipal) / result.totalPrincipal) * 100).toFixed(1)}%, 세전)
 
 [차별점 — 노란우산만의 혜택]
 ✓ 공제금 수급권 양도·압류·담보 금지 (중협법 §119)
@@ -257,14 +233,14 @@ ${lines}
 ✓ 복지플러스 (건강검진 20~50% 할인, 여행 50~70% 할인, 무료 경영교육·세무 자문)
 ${withIncentive ? `✓ 지자체 가입(희망)장려금 (월 ${formatKRW(incentiveMonthly)} × 12회 + 연복리 이자)` : ""}
 
-※ 수령 단계 차이:
-· 노란우산 = 사유 발생 시 일시금/분할 (퇴직소득세)
+※ 본 비교는 모두 세전 기준입니다. 수령 시 과세(상품별로 퇴직소득세 / 이자소득세 / 연금소득세)는 가입자 다른 소득·근속·소득공제 등에 따라 변수가 많아 본 시뮬에서는 별도 차감하지 않습니다. 정확한 실수령액은 세무 전문가 상담을 권해 드립니다.
+
+[수령 단계 차이]
+· 노란우산 = 사유 발생 시 일시금/분할 (퇴직소득세 별도)
 · 적금 = 만기 일시금 (이자소득세 15.4% 원천징수)
 · 연금저축 = 만 55세+ 연금 수령 (연금소득세). 중도해지 시 기타소득세 16.5%
 
-※ 본 비교는 가정 이율 기준 단순 시뮬레이션입니다. 실제 상품의 약관·이율·수령 단계 과세는 직접 확인 필요.
-
-— 정확한 비교 및 의사결정은 세무 전문가 상담 권유`;
+— 정확한 의사결정은 세무 전문가 상담 권유`;
   };
 
   return (
@@ -454,10 +430,10 @@ ${withIncentive ? `✓ 지자체 가입(희망)장려금 (월 ${formatKRW(incent
             </span>
           </button>
 
-          {/* 차트 — 원금 제외, 순 혜택만 비교 */}
+          {/* 차트 — 원금 제외, 순 혜택만 비교 (세전 기준) */}
           <div className="bg-white border border-stone-200 rounded-md p-4">
             <h4 className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-3">
-              {years}년 후 순 혜택 비교 (원금 제외 · 세후 기준)
+              {years}년 후 순 혜택 비교 (원금 제외 · 세전 기준)
             </h4>
             <ResponsiveContainer width="100%" height={260}>
               <BarChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
@@ -466,13 +442,13 @@ ${withIncentive ? `✓ 지자체 가입(희망)장려금 (월 ${formatKRW(incent
                 <YAxis tickFormatter={(v) => formatKRWShort(v)} tick={{ fontSize: 10, fill: "#78716c" }} />
                 <Tooltip formatter={(v) => formatKRW(v)} contentStyle={{ fontSize: 12, borderRadius: 4, border: "1px solid #e7e5e4" }} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
-                <Bar dataKey="세후 이자수익" stackId="a" fill="#f59e0b" />
+                <Bar dataKey="이자수익" stackId="a" fill="#f59e0b" />
                 <Bar dataKey="절세액" stackId="a" fill="#10b981" />
                 <Bar dataKey="장려금" stackId="a" fill="#8b5cf6" />
               </BarChart>
             </ResponsiveContainer>
             <p className="text-[11px] text-stone-500 mt-2 leading-relaxed">
-              원금은 모든 상품 동일하므로 제외. 막대 높이 = 「세후 이자수익 + 절세액 + 장려금」 — 상품 간 차이가 한눈에.
+              원금은 모든 상품 동일하므로 제외. 막대 높이 = 「이자수익 + 절세액 + 장려금」 (세전). 수령 시 과세 별도.
             </p>
           </div>
 
@@ -629,10 +605,10 @@ const ProductCard = ({ data, isBest }) => {
       <div className="grid grid-cols-2 gap-3 pt-3 border-t border-stone-200/70">
         <div>
           <div className="text-[10px] uppercase tracking-wider text-stone-500 font-bold mb-0.5">
-            세후 만기액 ({data.taxLabel} {(data.taxRate * 100).toFixed(1)}%)
+            만기 적립금 (세전)
           </div>
           <div className="text-lg font-black text-stone-900 tracking-tight">
-            {formatKRW(data.net)}
+            {formatKRW(data.fv)}
           </div>
         </div>
         <div>
@@ -656,10 +632,14 @@ const ProductCard = ({ data, isBest }) => {
       </div>
 
       <div className="mt-3 pt-2 border-t border-stone-200/70 flex items-baseline justify-between gap-3">
-        <span className="text-xs text-stone-600">총 혜택 합계 (세후 + 절세 + 장려)</span>
+        <span className="text-xs text-stone-600">총 혜택 합계 (세전 + 절세 + 장려)</span>
         <span className={cn("text-xl font-black tracking-tight", isBest ? "text-emerald-700" : "text-stone-900")}>
           {formatKRW(data.total)}
         </span>
+      </div>
+
+      <div className="mt-2 pt-2 border-t border-stone-200/70 text-[11px] text-stone-600 leading-relaxed">
+        <span className="font-semibold text-stone-700">수령 시 과세:</span> {data.taxNote}
       </div>
     </div>
   );
@@ -729,7 +709,7 @@ const ProductComparePrint = ({
             <div className="flex items-start gap-1.5">
               <span className="text-sm leading-none mt-0.5">⚠</span>
               <div className="flex-1 text-[10px] text-stone-900 leading-snug">
-                <strong className="text-amber-900">본 안내는 추정치입니다</strong> — 가정 이율 기준이며, 부가지급률·매 분기 변동 기준이율은 미반영. 모든 결과 세후 환산. 실제 금액은 중앙회 시스템(1666-9988) 조회 + 세무 전문가 상담 권장.
+                <strong className="text-amber-900">본 안내는 추정치이며 모두 세전 기준입니다.</strong> 수령 시 과세(상품별로 퇴직소득세 / 이자소득세 15.4% / 연금소득세)는 가입자 다른 소득·근속·소득공제 등에 따라 변수가 많아 별도 차감하지 않았습니다. 정확한 실수령액은 중앙회 시스템(1666-9988) + 세무 전문가 상담으로 확인해 주세요.
                 {!result.isNorengEligible && (
                   <span className="block mt-1 text-amber-900">
                     ⚠ 가입기간 10년 미만 — 노란우산 노령급부 조건 미충족
@@ -767,7 +747,7 @@ const ProductComparePrint = ({
           {/* 4컬럼 비교 표 */}
           <section className="mb-3 break-inside-avoid">
             <h2 className="text-[10px] font-black uppercase tracking-wider text-stone-700 border-b border-stone-300 pb-0.5 mb-1.5">
-              상품별 비교 (모두 세후 기준)
+              상품별 비교 (모두 세전 기준 — 수령 시 과세 별도)
             </h2>
             <table className="w-full text-[10px] border border-stone-300">
               <thead className="bg-stone-100 border-b-2 border-stone-400">
@@ -791,7 +771,7 @@ const ProductComparePrint = ({
               </thead>
               <tbody className="divide-y divide-stone-200">
                 <tr>
-                  <td className="px-1.5 py-1 text-stone-600 font-semibold">세후 만기액</td>
+                  <td className="px-1.5 py-1 text-stone-600 font-semibold">만기 적립금 (세전)</td>
                   {result.products.map((p) => (
                     <td
                       key={p.key}
@@ -800,7 +780,7 @@ const ProductComparePrint = ({
                         p.key === result.best.key ? "bg-amber-50 font-bold text-amber-900" : "text-stone-900"
                       )}
                     >
-                      {formatKRW(p.net)}
+                      {formatKRW(p.fv)}
                     </td>
                   ))}
                 </tr>
@@ -882,10 +862,24 @@ const ProductComparePrint = ({
                     </td>
                   ))}
                 </tr>
+                <tr>
+                  <td className="px-1.5 py-1 text-stone-500 align-top text-[8.5px]">수령 시 과세</td>
+                  {result.products.map((p) => (
+                    <td
+                      key={p.key}
+                      className={cn(
+                        "px-1.5 py-1 text-[8.5px] text-stone-600 leading-tight",
+                        p.key === result.best.key ? "bg-amber-50" : ""
+                      )}
+                    >
+                      {p.taxNote}
+                    </td>
+                  ))}
+                </tr>
               </tbody>
             </table>
             <p className="text-[10px] text-amber-900 font-bold mt-1.5 leading-snug">
-              💡 가장 유리한 상품: 「{result.best.name}」 — 총 혜택 약 {formatKRW(result.best.total)}{" "}
+              💡 가장 유리한 상품 (세전): 「{result.best.name}」 — 총 혜택 약 {formatKRW(result.best.total)}{" "}
               (납부원금 대비 +{totalPctBest}%)
             </p>
           </section>
@@ -893,7 +887,7 @@ const ProductComparePrint = ({
           {/* 차트 */}
           <section className="break-inside-avoid">
             <h2 className="text-[10px] font-black uppercase tracking-wider text-stone-700 border-b border-stone-300 pb-0.5 mb-1.5">
-              순 혜택 시각 비교 (원금 제외 · 세후)
+              순 혜택 시각 비교 (원금 제외 · 세전)
             </h2>
             <div className="flex justify-center">
               <BarChart
@@ -916,7 +910,7 @@ const ProductComparePrint = ({
                   width={55}
                 />
                 <Legend wrapperStyle={{ fontSize: 9 }} />
-                <Bar dataKey="세후 이자수익" stackId="a" fill="#f59e0b" />
+                <Bar dataKey="이자수익" stackId="a" fill="#f59e0b" />
                 <Bar dataKey="절세액" stackId="a" fill="#10b981" />
                 <Bar dataKey="장려금" stackId="a" fill="#8b5cf6" />
               </BarChart>
@@ -1034,19 +1028,22 @@ const ProductComparePrint = ({
               참고 사항
             </h2>
             <p>
-              · 노란우산 = 폐업·법인해산·사망공제금 가정 시 별표1 차등지급이율(15년간 기준이율 +0.3%) 적용 + 퇴직소득세 8.8% 추정 (근속·환산급여공제로 실제 5~15%)
+              · 모든 금액은 <strong>세전 기준</strong>입니다. 수령 시 과세는 상품별로 다르며 (퇴직소득세 / 이자소득세 / 연금소득세), 가입자의 다른 소득·근속·소득공제 등에 따라 변수가 많아 본 시뮬에서는 별도 차감하지 않았습니다.
             </p>
             <p>
-              · 노란우산 노령급부 도달 시 = 별표1 기준이율 부리적립 (가산 없음) + 퇴직소득세
+              · 노란우산 = 폐업·법인해산·사망공제금 가정 시 별표1 차등지급이율(15년간 기준이율 +0.3%) 적용. 수령 시 퇴직소득세 별도.
             </p>
             <p>
-              · 적금 = 매월 단리 (P × r × N(N+1)/(2×12)) + 이자소득세 15.4% (지방세 포함) 원천징수
+              · 노란우산 노령급부 도달 시 = 별표1 기준이율 부리적립 (가산 없음). 수령 시 퇴직소득세 별도.
             </p>
             <p>
-              · 연금저축 = 적립식 미래가치, 만 55세+ 연금 수령 시 연금소득세 평균 5.5% 추정. 중도 해지 시 기타소득세 16.5%
+              · 적금 = 매월 단리 (P × r × N(N+1)/(2×12)). 수령 시 이자소득세 15.4% 원천징수.
             </p>
             <p>
-              · 가입(희망)장려금은 가입일로부터 1년간(최대 12회) 월별 적립 후 수령 시까지 연복리 부리. 임의해약 시 미지급/감액 위험
+              · 연금저축 = 적립식 미래가치. 만 55세+ 연금 수령 시 연금소득세 / 중도 해지 시 기타소득세 16.5%.
+            </p>
+            <p>
+              · 가입(희망)장려금은 가입일로부터 1년간(최대 12회) 월별 적립 후 수령 시까지 연복리 부리. 임의해약 시 미지급/감액 위험.
             </p>
             <p>
               · 적금·연금저축 이율은 상품·시점에 따라 상이하므로 실제 가입 상품의 약관·이율을 직접 확인해야 합니다.

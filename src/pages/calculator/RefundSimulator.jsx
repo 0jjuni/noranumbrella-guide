@@ -93,14 +93,8 @@ export const RefundSimulator = ({ onOpenArticle }) => {
     // 4) 임의해약 — 별표3
     const general = generalRefund(monthlyAmount, paidMonths, assumedRate);
 
-    /* 과세 추정
-       - 공제금 수급(폐업·사망·노령 등) = 퇴직소득세 ~8.8%
-       - 임의해약 = 기본 기타소득세 16.5% (특별해지사유 충족 시 퇴직소득세 ~8.8%)
-       - 간주해약 = 별도 처리 (코드는 미과세로 표시, 실제 처리 중앙회 안내) */
-    const retirementRate = 0.088;
-    const otherRate = 0.165;
-    const generalTaxRate = specialReason ? retirementRate : otherRate;
-
+    /* 세금 안내문 — 추정 세율 계산은 하지 않고 라벨만 표시
+       (퇴직소득세는 근속·환산급여공제·다른 소득에 따라 변수가 많아 영업점에서 단정 불가) */
     const cases = [
       {
         key: "closure",
@@ -108,8 +102,7 @@ export const RefundSimulator = ({ onOpenArticle }) => {
         sublabel: "공제금 — 별표1 차등지급이율 (+0.3%)",
         priority: 1,
         refund: closureFV,
-        taxRate: retirementRate,
-        taxLabel: "퇴직소득세",
+        taxNote: "수령 시 퇴직소득세 별도 (실제는 근속·환산급여공제로 변동)",
         table: "별표1",
         article: "제17조 제1항 제1호/제2호",
       },
@@ -119,8 +112,7 @@ export const RefundSimulator = ({ onOpenArticle }) => {
         sublabel: "공제금 — 별표1 기준이율 부리적립",
         priority: 2,
         refund: norengFV,
-        taxRate: retirementRate,
-        taxLabel: "퇴직소득세",
+        taxNote: "수령 시 퇴직소득세 별도",
         table: "별표1",
         article: "제17조 제1항 제4·5·6·7·8호",
       },
@@ -130,8 +122,7 @@ export const RefundSimulator = ({ onOpenArticle }) => {
         sublabel: deemed.tier.label,
         priority: 3,
         refund: deemed.refund,
-        taxRate: 0,
-        taxLabel: "별도 안내",
+        taxNote: "과세는 중앙회 안내 확인",
         table: "별표2",
         article: "제8조 제3항",
       },
@@ -141,62 +132,52 @@ export const RefundSimulator = ({ onOpenArticle }) => {
         sublabel: general.tier.label,
         priority: 4,
         refund: general.refund,
-        taxRate: generalTaxRate,
-        taxLabel: specialReason ? "퇴직소득세" : "기타소득세",
+        taxNote: specialReason
+          ? "특별해지사유 충족 → 퇴직소득세 적용 (실제 산식 별도)"
+          : "기타소득세 16.5% (지방세 포함) 원천징수",
         table: "별표3",
         article: "제24조 제2항",
       },
     ];
 
-    /* 각 케이스에 세후·손익 계산 */
-    const withTax = cases.map((c) => {
-      const tax = c.refund * c.taxRate;
-      const net = c.refund - tax;
+    /* 각 케이스에 손익 계산 (세전 기준만) */
+    const withDiff = cases.map((c) => {
       const diff = c.refund - principal;
-      const netDiff = net - principal;
       return {
         ...c,
         principal,
-        tax,
-        net,
         diff,
-        netDiff,
         pctGross: principal > 0 ? (diff / principal) * 100 : 0,
-        pctNet: principal > 0 ? (netDiff / principal) * 100 : 0,
       };
     });
 
-    /* 가장 유리한 케이스 (세후 기준) */
-    const best = withTax.reduce((m, c) => (c.net > m.net ? c : m), withTax[0]);
+    /* 가장 유리한 케이스 (세전 기준) */
+    const best = withDiff.reduce((m, c) => (c.refund > m.refund ? c : m), withDiff[0]);
 
-    return { principal, cases: withTax, best };
+    return { principal, cases: withDiff, best };
   }, [monthlyAmount, paidMonths, assumedRate, specialReason]);
 
   const chartData = result.cases.map((c) => ({
     name: c.title.split(" ")[0].replace(/[·,]/g, "·"),
     원금: result.principal,
-    "세전 환급금": c.refund,
-    "세후 환급금": c.net,
+    "추정 환급금": c.refund,
     isBest: c.key === result.best.key,
   }));
 
   const generateScript = () => {
-    const lines = result.cases.map((c) => {
-      const taxLine =
-        c.taxRate > 0
-          ? `${formatKRW(c.refund)} → 세후 약 ${formatKRW(c.net)} (${c.taxLabel} ${(c.taxRate * 100).toFixed(1)}%)`
-          : `${formatKRW(c.refund)} (과세 별도 안내)`;
-      return `▸ ${c.title}: ${taxLine}`;
-    });
-    return `[가입 시 안내 — 추정] 월 ${formatKRW(monthlyAmount)} × ${paidMonths}회(${(paidMonths / 12).toFixed(1)}년) 납입 시 사유별 환급금:
+    const lines = result.cases.map((c) =>
+      `▸ ${c.title}: ${formatKRW(c.refund)} (${c.taxNote})`
+    );
+    return `[가입 시 안내 — 추정·세전 기준] 월 ${formatKRW(monthlyAmount)} × ${paidMonths}회(${(paidMonths / 12).toFixed(1)}년) 납입 시 사유별 환급금:
 
 납부원금: ${formatKRW(result.principal)}
 
 ${lines.join("\n")}
 
-💡 가장 유리한 시나리오는 「${result.best.title}」 — 세후 약 ${formatKRW(result.best.net)} (납부원금 대비 ${result.best.pctNet >= 0 ? "+" : ""}${result.best.pctNet.toFixed(1)}%)
+💡 가장 유리한 시나리오는 「${result.best.title}」 — 약 ${formatKRW(result.best.refund)} (납부원금 대비 ${result.best.pctGross >= 0 ? "+" : ""}${result.best.pctGross.toFixed(1)}%, 세전)
 
-※ 본 추정은 가정 기준이율 ${assumedRate}% 연단위 복리 적립식 기준입니다. 매 분기 변동되는 기준이율·부가지급률 등은 미반영. 정확한 금액은 중앙회 시스템(1666-9988) 조회 권장.
+※ 모든 금액은 세전 기준입니다. 수령 시 과세(퇴직소득세·기타소득세 등)는 가입기간·다른 소득·소득공제 받은 정도 등에 따라 달라지므로 영업점에서 단정 안내하지 않습니다. 정확한 실수령액은 중앙회 시스템(1666-9988) 조회 + 세무 전문가 상담 권장.
+※ 본 추정은 가정 기준이율 ${assumedRate}% 연단위 복리 적립식 기준입니다. 부가지급률·매 분기 변동 기준이율 미반영.
 
 — 약관 근거: 약관 제17조·제18조(공제금), 제24조(해약환급금), 별표1·2·3`;
   };
@@ -331,10 +312,10 @@ ${lines.join("\n")}
             </span>
           </button>
 
-          {/* 차트 */}
+          {/* 차트 — 세전 환급금만 비교 */}
           <div className="bg-white border border-stone-200 rounded-md p-4">
             <h4 className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-3">
-              사유별 환급금 비교 (세전 · 세후)
+              사유별 환급금 비교 (세전 기준)
             </h4>
             <ResponsiveContainer width="100%" height={260}>
               <BarChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
@@ -344,10 +325,12 @@ ${lines.join("\n")}
                 <Tooltip formatter={(v) => formatKRW(v)} contentStyle={{ fontSize: 12, borderRadius: 4, border: "1px solid #e7e5e4" }} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
                 <Bar dataKey="원금" fill="#a8a29e" radius={[2, 2, 0, 0]} />
-                <Bar dataKey="세전 환급금" fill="#f59e0b" radius={[2, 2, 0, 0]} />
-                <Bar dataKey="세후 환급금" fill="#10b981" radius={[2, 2, 0, 0]} />
+                <Bar dataKey="추정 환급금" fill="#f59e0b" radius={[2, 2, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
+            <p className="text-xs text-stone-500 mt-2 leading-relaxed">
+              ※ 세전 기준. 수령 시 과세는 사유·가입기간·다른 소득에 따라 변동하므로 시뮬에서 별도 차감하지 않습니다.
+            </p>
           </div>
 
           {/* 고객 안내 멘트 */}
@@ -375,40 +358,39 @@ ${lines.join("\n")}
       {/* 인쇄용 */}
       <PrintReport
         title="가입 시 사유별 환급금 안내"
-        subtitle={`월 ${formatKRW(monthlyAmount)} × ${paidMonths}회(${years}년) 가입 가정`}
-        disclaimer={`본 시뮬레이션은 가정 기준이율 ${assumedRate.toFixed(1)}%를 연단위 복리 적립식으로 적용한 추정치입니다.\n부가지급률·매 분기 변동 기준이율은 미반영이므로 실제 환급금과 ±5~10% 편차가 발생할 수 있습니다.\n과세 추정 — 공제금 지급(폐업·사망·노령 등): 퇴직소득세 약 8.8% / 임의해약: 기타소득세 16.5% (특별해지사유 충족 시 퇴직소득세). 실제 퇴직소득세는 근속·환산급여공제에 따라 5~15% 범위.\n정확한 금액은 중앙회 시스템(1666-9988) 조회로 확인해 주세요.`}
+        subtitle={`월 ${formatKRW(monthlyAmount)} × ${paidMonths}회(${years}년) 가입 가정 · 세전 기준`}
+        disclaimer={`본 시뮬레이션은 가정 기준이율 ${assumedRate.toFixed(1)}%를 연단위 복리 적립식으로 적용한 추정치이며 모두 세전 기준입니다.\n부가지급률·매 분기 변동 기준이율은 미반영이므로 실제 환급금과 ±5~10% 편차가 발생할 수 있습니다.\n수령 시 과세는 사유·가입기간·다른 소득·소득공제 받은 정도 등에 따라 변수가 많아 본 시뮬에서는 별도 차감하지 않습니다. 정확한 실수령액은 중앙회 시스템(1666-9988) + 세무 전문가 상담으로 확인해 주세요.`}
         inputs={[
           { label: "월 부금월액", value: formatKRW(monthlyAmount) },
           { label: "납입 기간", value: `${paidMonths}회 (${years}년)` },
           { label: "가정 기준이율", value: `${assumedRate.toFixed(1)}%` },
           {
             label: "임의해약 특별해지사유 적용",
-            value: specialReason ? "예 (퇴직소득세)" : "아니오 (기타소득세 16.5%)",
+            value: specialReason ? "예 (퇴직소득세 적용 가정)" : "아니오 (기타소득세 16.5%)",
           },
         ]}
         results={[
           { label: "납부원금", value: formatKRW(result.principal) },
           ...result.cases.flatMap((c) => [
             {
-              label: `${c.title}`,
-              value: `${formatKRW(c.refund)} (세전)`,
+              label: c.title,
+              value: formatKRW(c.refund),
               sub: c.sublabel,
               emphasis: c.key === result.best.key,
             },
             {
-              label: `  └ 세후 추정 (${c.taxLabel})`,
-              value: c.taxRate > 0 ? `${formatKRW(c.net)} (세금 ${formatKRW(c.tax)} 차감)` : "별도 안내 (과세 처리 중앙회 확인)",
-              sub: `납부원금 대비 ${c.pctNet >= 0 ? "+" : ""}${c.pctNet.toFixed(1)}%`,
+              label: `  └ 납부원금 대비`,
+              value: `${c.pctGross >= 0 ? "+" : ""}${c.pctGross.toFixed(1)}% (세전)`,
+              sub: `수령 시 과세: ${c.taxNote}`,
             },
           ]),
         ]}
         notes={[
-          `💡 가장 유리한 시나리오: 「${result.best.title}」 — 세후 약 ${formatKRW(result.best.net)} (납부원금 대비 ${result.best.pctNet >= 0 ? "+" : ""}${result.best.pctNet.toFixed(1)}%)`,
+          `💡 가장 유리한 시나리오 (세전): 「${result.best.title}」 — 약 ${formatKRW(result.best.refund)} (납부원금 대비 ${result.best.pctGross >= 0 ? "+" : ""}${result.best.pctGross.toFixed(1)}%)`,
           "별표1 (공제금): 1~6회 납부부금만 / 7회+ 「폐업·사망」은 차등지급이율(15년간 +0.3%) / 「노령·재난·질병·회생·파산」은 기준이율 부리적립",
           "별표2 (간주해약): 1~12회 납부부금만(이자 미부리) / 13~36회 100%+이자 70% / 37회+ 부리적립 전액",
           "별표3 (임의해약): 1~3회 80% / 4~6회 90% / 7~12회 100% / 13회+ 부터 적립이자 단계 가산 (10~95%)",
-          "공제금(폐업·사망·노령 등) 지급 시 소득공제 받은 원금과 이자에 퇴직소득세가 원천징수됩니다 (실제 세율 5~15%).",
-          "임의해약 시 기본은 기타소득세 16.5% (지방세 포함). 단, 120개월+경영악화 등 6종 특별해지사유 충족 시 「특별해지사유신고서」 제출로 퇴직소득세 적용 가능 (조특법 시행령 §80조의3 제9항).",
+          "수령 시 과세 — 공제금(폐업·사망·노령 등) 지급 시 퇴직소득세, 임의해약 시 기타소득세 16.5%, 특별해지사유 충족 시 퇴직소득세. 퇴직소득세는 근속연수공제·환산급여공제·다른 소득에 따라 변수가 커서 본 시뮬에서는 별도 추정하지 않으니 중앙회·세무 전문가 안내로 확인해 주세요.",
           "임의해약 시 1~6회 단기 해약은 원금 손실(80~90% 환급)이 발생합니다. 가입 후 일시 자금이 필요하시면 공제계약 대출(해약환급금 범위 내 무담보)을 우선 검토해 주세요.",
         ]}
         legalBasis="약관 제17조·제18조(공제금), 제24조(해약환급금), 별표1·별표2·별표3, 조세특례제한법 시행령 제80조의3"
@@ -417,9 +399,9 @@ ${lines.join("\n")}
   );
 };
 
-/* 사유별 환급금 카드 */
+/* 사유별 환급금 카드 — 세전 기준 */
 const CaseCard = ({ data, isBest, onOpenArticle }) => {
-  const isLoss = data.netDiff < 0;
+  const isLoss = data.diff < 0;
   return (
     <div
       className={cn(
@@ -455,45 +437,35 @@ const CaseCard = ({ data, isBest, onOpenArticle }) => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 mt-3 pt-3 border-t border-stone-200/70">
-        <div>
-          <div className="text-[10px] uppercase tracking-wider text-stone-500 font-bold mb-0.5">
-            세전 환급금
-          </div>
-          <div className="text-lg font-black text-stone-900 tracking-tight">
-            {formatKRW(data.refund)}
-          </div>
-        </div>
-        <div>
-          <div className="text-[10px] uppercase tracking-wider text-stone-500 font-bold mb-0.5">
-            세후 추정 ({data.taxLabel})
+      <div className="mt-3 pt-3 border-t border-stone-200/70">
+        <div className="flex items-baseline justify-between gap-3 mb-1">
+          <div className="text-[10px] uppercase tracking-wider text-stone-500 font-bold">
+            추정 환급금 (세전)
           </div>
           <div
             className={cn(
-              "text-lg font-black tracking-tight",
-              isBest ? "text-emerald-700" : "text-stone-900"
+              "text-[11px] font-bold",
+              isLoss ? "text-red-600" : "text-emerald-700"
             )}
           >
-            {data.taxRate > 0 ? formatKRW(data.net) : "별도 안내"}
+            납부원금 대비 {data.pctGross >= 0 ? "+" : ""}{data.pctGross.toFixed(1)}%
+            {isLoss && (
+              <AlertTriangle className="w-3 h-3 inline-block ml-1 text-red-500" />
+            )}
           </div>
+        </div>
+        <div
+          className={cn(
+            "text-2xl font-black tracking-tight",
+            isBest ? "text-emerald-700" : "text-stone-900"
+          )}
+        >
+          {formatKRW(data.refund)}
         </div>
       </div>
 
-      <div className="mt-2.5 pt-2 border-t border-stone-200/70 flex items-baseline justify-between gap-3 text-xs">
-        <span className="text-stone-600">납부원금 대비</span>
-        <span
-          className={cn(
-            "font-bold",
-            isLoss ? "text-red-600" : "text-emerald-700"
-          )}
-        >
-          {data.taxRate > 0
-            ? `${data.pctNet >= 0 ? "+" : ""}${data.pctNet.toFixed(1)}% (세후)`
-            : `${data.pctGross >= 0 ? "+" : ""}${data.pctGross.toFixed(1)}% (세전)`}
-          {isLoss && (
-            <AlertTriangle className="w-3 h-3 inline-block ml-1 text-red-500" />
-          )}
-        </span>
+      <div className="mt-2.5 pt-2 border-t border-stone-200/70 text-[11px] text-stone-600 leading-relaxed">
+        <span className="font-semibold text-stone-700">수령 시 과세:</span> {data.taxNote}
       </div>
     </div>
   );

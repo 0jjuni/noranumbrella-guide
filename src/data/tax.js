@@ -72,3 +72,4 @@ export const REFUND_TABLE_DEEMED = [
     calcType: "full_compound",
   },
 ];
+
