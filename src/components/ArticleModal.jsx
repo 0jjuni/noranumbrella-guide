@@ -15,7 +15,9 @@ export const ArticleModal = ({ articleNo, onClose }) => {
     articleNo.includes("자산운용") ||
     articleNo.includes("리스크관리") ||
     articleNo.includes("IPS") ||
-    articleNo.includes("행정정보");
+    articleNo.includes("행정정보") ||
+    articleNo.includes("공공마이데이터") ||
+    articleNo.includes("가입(희망)장려금");
 
   const hasContent =
     article.summary || (article.keyPoints && article.keyPoints.length > 0);

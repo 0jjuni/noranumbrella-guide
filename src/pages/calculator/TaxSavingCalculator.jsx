@@ -145,10 +145,10 @@ export const TaxSavingCalculator = ({ onOpenArticle }) => {
                 />
                 <div className="flex-1">
                   <div className="text-sm font-semibold text-stone-900">
-                    총급여 8천만원 초과
+                    총급여 8천만원 초과 (= 근로소득금액 6,625만원 초과)
                   </div>
                   <div className="text-xs text-stone-600 mt-0.5">
-                    체크 시 근로소득금액 공제 불가 (조특법 제86조의3 제1항)
+                    체크 시 근로소득금액 공제 불가 (조특법 제86조의3 제1항). 청약서 핵심설명서의 법인대표 4구간 표 기준 6,625만원 분기점과 동일.
                   </div>
                 </div>
               </label>
