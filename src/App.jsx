@@ -108,7 +108,7 @@ export default function App() {
     setDrawerOpen(false);
   };
 
-  const handleNavigate = (p) => navigate(p);
+  const handleNavigate = (p, s = null) => navigate(p, s);
   const handleGoToChecklist = (reasonKey) => navigate("checklist", reasonKey);
   const handleSelectGuide = (guideId) => navigate("guide", guideId);
   const handleBackToGuideList = () => navigate("guide");
@@ -140,6 +140,7 @@ export default function App() {
           <SimulatorPage
             onOpenArticle={setOpenArticle}
             onGoToChecklist={handleGoToChecklist}
+            initialNode={sub}
           />
         );
       case "calculator":

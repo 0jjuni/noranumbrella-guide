@@ -82,7 +82,7 @@ export const Dashboard = ({ onNavigate, onOpenArticle }) => {
             return (
               <button
                 key={qa.id}
-                onClick={() => onNavigate("simulator")}
+                onClick={() => onNavigate("simulator", `${qa.id}-1`)}
                 className="group text-left p-5 bg-white border border-stone-200 hover:border-amber-400 hover:shadow-sm transition-all rounded-md relative overflow-hidden"
               >
                 <div className="absolute top-0 right-0 w-1 h-full bg-amber-400 opacity-0 group-hover:opacity-100 transition-opacity" />

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ChevronRight } from "lucide-react";
 import { SIMULATOR_TREE, SIMULATOR_RESULTS } from "../data/simulator";
 import { CoachCard } from "../components/CoachCard";
@@ -9,10 +9,22 @@ import { CopyButton } from "../components/CopyButton";
 import { ChecklistPreview } from "../components/ChecklistPreview";
 import { cn } from "../lib/format";
 
-export const SimulatorPage = ({ onOpenArticle, onGoToChecklist }) => {
-  const [path, setPath] = useState(["root"]);
+/* initialNode가 SIMULATOR_TREE에 있고 root가 아니면 해당 노드로 바로 진입 */
+const buildInitialPath = (initialNode) =>
+  initialNode && initialNode !== "root" && SIMULATOR_TREE[initialNode]
+    ? ["root", initialNode]
+    : ["root"];
+
+export const SimulatorPage = ({ onOpenArticle, onGoToChecklist, initialNode }) => {
+  const [path, setPath] = useState(() => buildInitialPath(initialNode));
   const [resultId, setResultId] = useState(null);
   const [coachMode, setCoachMode] = useState(false);
+
+  /* URL hash 변경(예: 대시보드에서 다른 카테고리 카드 클릭, 브라우저 뒤로가기)에 따라 경로 재설정 */
+  useEffect(() => {
+    setPath(buildInitialPath(initialNode));
+    setResultId(null);
+  }, [initialNode]);
 
   const currentNodeId = path[path.length - 1];
   const currentNode = SIMULATOR_TREE[currentNodeId];
