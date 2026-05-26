@@ -16,7 +16,6 @@ export const ArticleModal = ({ articleNo, onClose }) => {
     articleNo.includes("리스크관리") ||
     articleNo.includes("IPS") ||
     articleNo.includes("행정정보") ||
-    articleNo.includes("공공마이데이터") ||
     articleNo.includes("가입(희망)장려금");
 
   const hasContent =

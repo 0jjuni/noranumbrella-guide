@@ -63,21 +63,14 @@ export const ChecklistPage = ({ onOpenArticle, initialReason }) => {
                   자동조회
                 </span>
                 <p className="text-xs text-stone-700 leading-relaxed flex-1">
-                  청약서·청구서의{" "}
+                  별지 제61호{" "}
                   <button
                     onClick={() => onOpenArticle?.("행정정보 공동이용")}
                     className="text-blue-700 hover:text-blue-800 underline font-medium"
                   >
-                    「행정정보 공동이용」(§36, 12종)
+                    「행정정보 공동이용 사전동의서」(전자정부법 §36, 12종)
                   </button>{" "}
-                  +{" "}
-                  <button
-                    onClick={() => onOpenArticle?.("공공마이데이터")}
-                    className="text-blue-700 hover:text-blue-800 underline font-medium"
-                  >
-                    「공공마이데이터」(§43조의2, 5종)
-                  </button>{" "}
-                  동의 시 국세청 연계로 자동 조회 — 고객이 별도로 가져오지 않으셔도 됩니다.
+                  자필서명 시 국세청 연계로 자동 조회 — 고객이 별도로 가져오지 않으셔도 됩니다.
                 </p>
               </div>
             )}
