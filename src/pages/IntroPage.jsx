@@ -11,6 +11,7 @@ import {
   Calculator,
   MessageSquare,
   HelpCircle,
+  BookOpen,
 } from "lucide-react";
 
 /* 노란우산공제를 처음 접하는 직원을 위한 한 페이지 스크롤 입문서.
@@ -44,15 +45,16 @@ export const IntroPage = ({ onNavigate, onOpenArticle }) => {
       >
         <div className="bg-amber-50/60 border-l-4 border-amber-500 p-6 rounded-r-md space-y-4">
           <p className="text-[15px] text-stone-800 leading-loose">
-            <strong className="text-stone-900">운영 주체</strong> — 중소기업중앙회 (중소기업협동조합법 제115조 근거 공제사업)
+            <strong className="text-stone-900">운영 주체</strong> — 중소기업중앙회의 공제사업
           </p>
           <p className="text-[15px] text-stone-800 leading-loose">
             <strong className="text-stone-900">본질</strong> — 일반 「적금」이 아니라 「공제」. 사업자가 폐업·사망·노령·재난·질병 등으로 사업을 더 못 하시게 됐을 때, 그동안 모으신 돈을 「퇴직금」처럼 받으시는 구조입니다.
           </p>
           <p className="text-[15px] text-stone-800 leading-loose">
-            <strong className="text-stone-900">다른 상품과 차이</strong> — ① 소득공제 (조특법 §86조의3) ② 공제금 수급권 양도·압류·담보 금지 (중협법 §119). 적금엔 둘 다 없습니다.
+            <strong className="text-stone-900">다른 상품과 차이</strong> — ① 소득공제 ② 공제금 수급권 양도·압류·담보 금지. 적금엔 둘 다 없습니다.
           </p>
         </div>
+        <Refs onOpenArticle={onOpenArticle} items={["중협법 제115조", "조특법 제86조의3", "중협법 제119조"]} />
       </Section>
 
       {/* §2. 누가 가입 가능? */}
@@ -83,14 +85,9 @@ export const IntroPage = ({ onNavigate, onOpenArticle }) => {
           </Card>
         </div>
         <p className="text-sm text-stone-700 mt-5 leading-loose">
-          부금월액은 <strong className="text-stone-900">월 5만원부터 100만원까지 1만원 단위</strong>로 선택. 월납·분기납 중 택일.{" "}
-          <button
-            onClick={() => onOpenArticle?.("제9조")}
-            className="text-amber-700 hover:text-amber-800 underline font-medium"
-          >
-            약관 제9조
-          </button>
+          부금월액은 <strong className="text-stone-900">월 5만원부터 100만원까지 1만원 단위</strong>로 선택. 월납·분기납 중 택일.
         </p>
+        <Refs onOpenArticle={onOpenArticle} items={["제9조"]} />
       </Section>
 
       {/* §3. 세제 혜택 */}
@@ -118,14 +115,9 @@ export const IntroPage = ({ onNavigate, onOpenArticle }) => {
           </table>
         </div>
         <div className="bg-amber-50/60 border border-amber-200 rounded-md p-5 mt-5 text-[15px] text-stone-800 leading-loose">
-          <strong className="text-stone-900">법인대표는 다릅니다.</strong> 총급여 8천만원 초과(= 근로소득금액 6,625만원 초과) 시 근로소득금액에서 소득공제 불가 (조특법 §86조의3 제1항). 사업소득은 부동산임대업 비중만큼 한도 차감.{" "}
-          <button
-            onClick={() => onOpenArticle?.("조특법 제86조의3")}
-            className="text-amber-700 hover:text-amber-800 underline font-medium"
-          >
-            조특법 §86조의3
-          </button>
+          <strong className="text-stone-900">법인대표는 다릅니다.</strong> 총급여 8천만원 초과(= 근로소득금액 6,625만원 초과) 시 근로소득금액에서 소득공제 불가. 사업소득은 부동산임대업 비중만큼 한도 차감.
         </div>
+        <Refs onOpenArticle={onOpenArticle} items={["조특법 제86조의3"]} />
         <button
           onClick={() => onNavigate?.("calculator")}
           className="mt-5 inline-flex items-center gap-1.5 text-base text-amber-700 hover:text-amber-800 font-bold"
@@ -146,20 +138,19 @@ export const IntroPage = ({ onNavigate, onOpenArticle }) => {
         <div className="space-y-4">
           <div className="bg-emerald-50/50 border-l-4 border-emerald-500 rounded-r-md p-6">
             <p className="text-[15px] text-stone-800 leading-loose">
-              <strong className="text-stone-900">공제금 수급권은 양도·압류·담보 제공 모두 금지</strong> (중협법 §119, §121조의2). 사업자가 채무·소송에 휘말려도 노란우산 공제금은 안전하게 받으실 수 있습니다.
+              <strong className="text-stone-900">공제금 수급권은 양도·압류·담보 제공 모두 금지</strong>. 사업자가 채무·소송에 휘말려도 노란우산 공제금은 안전하게 받으실 수 있습니다.
             </p>
             <p className="text-sm text-stone-600 mt-3 leading-relaxed">
-              ※ 단 「행복지킴이 통장」 등 압류방지 통장을 사용하셔야 통장 단계에서도 완전 보호.{" "}
-              <button onClick={() => onOpenArticle?.("중협법 제119조")} className="text-emerald-700 hover:text-emerald-800 underline font-medium">중협법 §119</button>
+              ※ 단 「행복지킴이 통장」 등 압류방지 통장을 사용하셔야 통장 단계에서도 완전 보호.
             </p>
           </div>
           <div className="bg-blue-50/50 border-l-4 border-blue-500 rounded-r-md p-6">
             <p className="text-[15px] text-stone-800 leading-loose">
-              <strong className="text-stone-900">공제계약 대출도 가능</strong> — 해약환급금 범위 내 무담보 대출. 일시적 자금 필요 시 해약 대신 대출로 유지 권장.{" "}
-              <button onClick={() => onOpenArticle?.("제32조")} className="text-blue-700 hover:text-blue-800 underline font-medium">약관 제32조</button>
+              <strong className="text-stone-900">공제계약 대출도 가능</strong> — 해약환급금 범위 내 무담보 대출. 일시적 자금 필요 시 해약 대신 대출로 유지 권장.
             </p>
           </div>
         </div>
+        <Refs onOpenArticle={onOpenArticle} items={["중협법 제119조", "중협법 제121조의2", "제32조"]} />
       </Section>
 
       {/* §5. 공제사유 */}
@@ -187,11 +178,9 @@ export const IntroPage = ({ onNavigate, onOpenArticle }) => {
           ))}
         </div>
         <p className="text-sm text-stone-700 mt-5 leading-loose">
-          공제금 = 납부부금 + 별표1 차등지급이율표 적용 (15년간 기준이율 + 0.3%, 이후 단계적 인하).{" "}
-          <button onClick={() => onOpenArticle?.("제17조")} className="text-amber-700 hover:text-amber-800 underline font-medium">약관 제17조</button>
-          {" · "}
-          <button onClick={() => onOpenArticle?.("제18조")} className="text-amber-700 hover:text-amber-800 underline font-medium">제18조</button>
+          공제금 = 납부부금 + 별표1 차등지급이율표 적용 (15년간 기준이율 + 0.3%, 이후 단계적 인하).
         </p>
+        <Refs onOpenArticle={onOpenArticle} items={["제17조", "제18조"]} />
       </Section>
 
       {/* §6. 해약은 손해 */}
@@ -214,11 +203,7 @@ export const IntroPage = ({ onNavigate, onOpenArticle }) => {
             <li><strong className="text-stone-900">③ 공제계약 대출</strong> — 해약환급금 범위 내 무담보</li>
           </ul>
         </div>
-        <p className="text-sm text-stone-700 mt-5 leading-loose">
-          <button onClick={() => onOpenArticle?.("제24조")} className="text-amber-700 hover:text-amber-800 underline font-medium">약관 제24조 해약환급금</button>
-          {" · "}
-          <button onClick={() => onOpenArticle?.("제12조")} className="text-amber-700 hover:text-amber-800 underline font-medium">제12조 부금납부 중지</button>
-        </p>
+        <Refs onOpenArticle={onOpenArticle} items={["제24조", "제12조"]} />
         <button
           onClick={() => onNavigate?.("calculator")}
           className="mt-5 inline-flex items-center gap-1.5 text-base text-amber-700 hover:text-amber-800 font-bold"
@@ -366,3 +351,25 @@ const NextCard = ({ icon: Icon, title, desc, onClick, highlight }) => (
     </div>
   </button>
 );
+
+/* 섹션 하단 근거 조항 모음 — 본문 흐름과 분리해 가독성 확보 */
+const Refs = ({ items = [], onOpenArticle }) => {
+  if (!items.length) return null;
+  return (
+    <div className="flex flex-wrap items-center gap-1.5 mt-4">
+      <span className="inline-flex items-center gap-1 text-[11px] uppercase tracking-wider font-bold text-stone-500">
+        <BookOpen className="w-3 h-3" />
+        근거
+      </span>
+      {items.map((a) => (
+        <button
+          key={a}
+          onClick={() => onOpenArticle?.(a)}
+          className="text-xs text-stone-600 hover:text-amber-700 bg-stone-100 hover:bg-amber-50 border border-stone-200 hover:border-amber-300 px-2 py-0.5 rounded-sm transition-colors"
+        >
+          {a}
+        </button>
+      ))}
+    </div>
+  );
+};
