@@ -1,4 +1,4 @@
-import { BookOpen, ChevronRight } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import { CATEGORIES } from "../data/categories";
 import { ARTICLES } from "../data/articles";
 import { SourceBadge } from "../components/SourceBadge";
@@ -6,7 +6,7 @@ import { WarningBox } from "../components/WarningBox";
 import { SectionTitle } from "../components/SectionTitle";
 import { CopyButton } from "../components/CopyButton";
 
-export const GuideDetailPage = ({ guide, onBack, onOpenArticle, onGoToScript }) => {
+export const GuideDetailPage = ({ guide, onBack, onOpenArticle }) => {
   if (!guide) return null;
   const cat = CATEGORIES.find((c) => c.id === guide.category);
 
@@ -82,12 +82,6 @@ export const GuideDetailPage = ({ guide, onBack, onOpenArticle, onGoToScript }) 
             <p className="text-sm text-stone-800 leading-relaxed bg-white/70 p-3 rounded-sm border border-amber-200/60">
               {guide.customerScript}
             </p>
-            <button
-              onClick={onGoToScript}
-              className="mt-3 text-xs text-amber-700 hover:text-amber-800 font-medium flex items-center gap-1"
-            >
-              스크립트 생성기에서 변수 입력하기 <ChevronRight className="w-3 h-3" />
-            </button>
           </div>
         </div>
 

@@ -3,12 +3,12 @@ import {
   Search,
   Home,
   ClipboardList,
-  FileText,
   HelpCircle,
   CheckSquare,
   MessageSquare,
   ExternalLink,
   Calculator,
+  Lightbulb,
   Menu,
   X,
 } from "lucide-react";
@@ -22,18 +22,18 @@ import { GuideDetailPage } from "./pages/GuideDetailPage";
 import { FaqPage } from "./pages/FaqPage";
 import { ChecklistPage } from "./pages/ChecklistPage";
 import { SimulatorPage } from "./pages/SimulatorPage";
-import { ScriptGeneratorPage } from "./pages/ScriptGeneratorPage";
+import { IntroPage } from "./pages/IntroPage";
 import { CalculatorPage } from "./pages/calculator/CalculatorPage";
 import { cn } from "./lib/format";
 
 const NAV_ITEMS = [
   { id: "dashboard", label: "대시보드", icon: Home },
+  { id: "intro", label: "5분 입문", icon: Lightbulb, badge: "NEW" },
   { id: "simulator", label: "상담 시뮬레이터", icon: MessageSquare },
   { id: "calculator", label: "계산기", icon: Calculator, highlight: true },
   { id: "guide", label: "업무별 가이드", icon: ClipboardList },
   { id: "checklist", label: "구비서류 체크리스트", icon: CheckSquare },
   { id: "faq", label: "FAQ 검색", icon: HelpCircle },
-  { id: "script", label: "스크립트 생성기", icon: FileText },
 ];
 
 const Brand = () => (
@@ -103,13 +103,14 @@ export default function App() {
           guide={selectedGuide}
           onBack={() => setSelectedGuideId(null)}
           onOpenArticle={setOpenArticle}
-          onGoToScript={() => setPage("script")}
         />
       );
     }
     switch (page) {
       case "dashboard":
         return <Dashboard onNavigate={handleNavigate} onOpenArticle={setOpenArticle} />;
+      case "intro":
+        return <IntroPage onNavigate={handleNavigate} onOpenArticle={setOpenArticle} />;
       case "simulator":
         return (
           <SimulatorPage
@@ -130,8 +131,6 @@ export default function App() {
         );
       case "faq":
         return <FaqPage onOpenArticle={setOpenArticle} />;
-      case "script":
-        return <ScriptGeneratorPage />;
       default:
         return <Dashboard onNavigate={handleNavigate} onOpenArticle={setOpenArticle} />;
     }
@@ -188,6 +187,11 @@ export default function App() {
               {item.highlight && !isActive && (
                 <span className="text-[9px] font-bold uppercase tracking-wider text-amber-700 bg-amber-200 px-1.5 py-0.5 rounded-sm">
                   세일즈
+                </span>
+              )}
+              {item.badge && !isActive && (
+                <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded-sm">
+                  {item.badge}
                 </span>
               )}
             </button>
