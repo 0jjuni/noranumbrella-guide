@@ -36,6 +36,9 @@ const compoundFV = (monthly, months, annualRatePct) => {
   return monthly * 12 * (Math.pow(1 + r, years) - 1) / r * Math.sqrt(1 + r);
 };
 
+/* 별표1 폐업·사망공제금 차등지급이율 — 15년간 +0.3%, 이후 단계적 인하 (단순화: 평균 +0.15%) */
+const closureBonusRate = (months) => (months / 12 <= 15 ? 0.3 : 0.15);
+
 /* 일반 적금: 단리 (매월 납입분별 잔여기간 단리)
    총 이자 = P × r × N(N+1) / (2×12) */
 const simpleSavingsFV = (monthly, months, annualRatePct) => {
@@ -64,20 +67,23 @@ export const ProductCompare = ({ onOpenArticle }) => {
     const annualPayment = monthlyAmount * 12;
     const totalPrincipal = monthlyAmount * months;
 
-    /* === 노란우산공제 === */
-    // 가입기간 ≥ 10년이면 노령급부(만 60세 가정) 도달로 「공제금」 — 별표1 기준이율 부리적립
-    // 가입기간 < 10년이면 노령급부 조건 미충족 → 임의해약 별표3 적용
+    /* === 노란우산공제 — 2개 시나리오 동시 표시 === */
+    // (a) 폐업·법인해산·사망공제금 — 별표1 차등지급이율 +0.3% (가장 유리)
+    // (b) 노령급부 도달 — 별표1 기준이율 부리적립 (만 60세 + 120개월 충족)
+    // 별표1 1~6회 납부는 납부부금만 (이자 미부리). 슬라이더가 1년~이라 항상 7회 이상.
+    const yumamClosureRefund = months <= 6
+      ? monthlyAmount * months
+      : compoundFV(monthlyAmount, months, yumamRate + closureBonusRate(months));
+    const yumamNorengRefund = months <= 6
+      ? monthlyAmount * months
+      : compoundFV(monthlyAmount, months, yumamRate);
     const isNorengEligible = months >= 120;
-    const yumamFV = compoundFV(monthlyAmount, months, yumamRate);
-    // 임의해약 시 별표3 적용 (단순화: 13회+ 가입자는 baseRate=1.0 + interestShare 단계)
-    // 10년 미만일 때만 임의해약 가정 — 단순화로 적립이자 × 50% 가산 사용
-    const yumamRefund = isNorengEligible
-      ? yumamFV
-      : monthlyAmount * months + Math.max(0, yumamFV - monthlyAmount * months) * 0.5;
-    // 노란우산 수령 시 퇴직소득세 (추정 8.8% — 근속·환산급여공제에 따라 5~15%)
+    // 두 사유 모두 수령 시 퇴직소득세 (추정 8.8%)
     const yumamTaxRate = 0.088;
-    const yumamTax = yumamRefund * yumamTaxRate;
-    const yumamNet = yumamRefund - yumamTax;
+    const yumamClosureTax = yumamClosureRefund * yumamTaxRate;
+    const yumamClosureNet = yumamClosureRefund - yumamClosureTax;
+    const yumamNorengTax = yumamNorengRefund * yumamTaxRate;
+    const yumamNorengNet = yumamNorengRefund - yumamNorengTax;
     // 소득공제 절세액 누적
     const yumamDeduction = Math.min(annualPayment, bracket.deductionLimit);
     const yumamTaxSavingAnnual = yumamDeduction * bracket.marginalRate;
@@ -120,29 +126,48 @@ export const ProductCompare = ({ onOpenArticle }) => {
     const pensionNet = pensionFV - pensionTax;
 
     /* === 총 혜택 합계 (세후 만기액 + 누적 절세액 + 장려금) === */
-    const yumamTotal = yumamNet + yumamTaxSavingTotal + incentiveTotal;
-    const savingsTotal = savingsNet; // 절세·장려 없음
+    const yumamClosureTotal = yumamClosureNet + yumamTaxSavingTotal + incentiveTotal;
+    const yumamNorengTotal = yumamNorengNet + yumamTaxSavingTotal + incentiveTotal;
+    const savingsTotal = savingsNet;
     const pensionTotal = pensionNet + pensionTaxSavingTotal;
 
     const products = [
       {
-        key: "yumam",
-        name: "노란우산공제",
+        key: "yumam-closure",
+        name: "노란우산 (폐업·사망 시)",
         icon: Shield,
         color: "amber",
         principal: totalPrincipal,
-        fv: yumamRefund,
-        tax: yumamTax,
+        fv: yumamClosureRefund,
+        tax: yumamClosureTax,
         taxRate: yumamTaxRate,
         taxLabel: "퇴직소득세 추정",
-        net: yumamNet,
+        net: yumamClosureNet,
         taxSaving: yumamTaxSavingTotal,
         taxSavingLabel: "소득공제 절세액",
         incentive: incentiveTotal,
-        total: yumamTotal,
+        total: yumamClosureTotal,
+        scenario: "별표1 차등지급이율 (15년간 기준이율 +0.3%) — 가장 유리한 사유",
+        warning: false,
+      },
+      {
+        key: "yumam-noreng",
+        name: "노란우산 (노령급부 도달 시)",
+        icon: Shield,
+        color: "amber",
+        principal: totalPrincipal,
+        fv: yumamNorengRefund,
+        tax: yumamNorengTax,
+        taxRate: yumamTaxRate,
+        taxLabel: "퇴직소득세 추정",
+        net: yumamNorengNet,
+        taxSaving: yumamTaxSavingTotal,
+        taxSavingLabel: "소득공제 절세액",
+        incentive: incentiveTotal,
+        total: yumamNorengTotal,
         scenario: isNorengEligible
-          ? "노령급부 도달 가정 (만 60세+120개월) · 별표1 기준이율 부리적립"
-          : "⚠ 가입기간 10년 미만 — 노령급부 조건 미충족, 임의해약(별표3) 가정",
+          ? "별표1 기준이율 부리적립 · 만 60세 + 120개월 충족 가정"
+          : "⚠ 가입기간 10년 미만 — 노령급부 조건 미충족 (참고용 추정만)",
         warning: !isNorengEligible,
       },
       {
@@ -206,9 +231,8 @@ export const ProductCompare = ({ onOpenArticle }) => {
   ]);
 
   const chartData = result.products.map((p) => ({
-    name: p.name,
-    원금: p.principal,
-    "세후 만기액": p.net - p.principal,
+    name: p.name.replace("노란우산 (", "").replace(")", ""),
+    "세후 이자수익": Math.max(0, p.net - p.principal),
     절세액: p.taxSaving,
     장려금: p.incentive,
   }));
@@ -431,24 +455,26 @@ ${withIncentive ? `✓ 지자체 가입(희망)장려금 (월 ${formatKRW(incent
             </span>
           </button>
 
-          {/* 차트 */}
+          {/* 차트 — 원금 제외, 순 혜택만 비교 */}
           <div className="bg-white border border-stone-200 rounded-md p-4">
             <h4 className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-3">
-              {years}년 후 자산 구성 비교 (세후)
+              {years}년 후 순 혜택 비교 (원금 제외 · 세후 기준)
             </h4>
             <ResponsiveContainer width="100%" height={260}>
               <BarChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e7e5e4" />
-                <XAxis dataKey="name" tick={{ fontSize: 11, fill: "#44403c" }} />
+                <XAxis dataKey="name" tick={{ fontSize: 10, fill: "#44403c" }} interval={0} angle={-12} textAnchor="end" height={70} />
                 <YAxis tickFormatter={(v) => formatKRWShort(v)} tick={{ fontSize: 10, fill: "#78716c" }} />
                 <Tooltip formatter={(v) => formatKRW(v)} contentStyle={{ fontSize: 12, borderRadius: 4, border: "1px solid #e7e5e4" }} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
-                <Bar dataKey="원금" stackId="a" fill="#a8a29e" />
-                <Bar dataKey="세후 만기액" stackId="a" fill="#f59e0b" />
+                <Bar dataKey="세후 이자수익" stackId="a" fill="#f59e0b" />
                 <Bar dataKey="절세액" stackId="a" fill="#10b981" />
                 <Bar dataKey="장려금" stackId="a" fill="#8b5cf6" />
               </BarChart>
             </ResponsiveContainer>
+            <p className="text-[11px] text-stone-500 mt-2 leading-relaxed">
+              원금은 모든 상품 동일하므로 제외. 막대 높이 = 「세후 이자수익 + 절세액 + 장려금」 — 상품 간 차이가 한눈에.
+            </p>
           </div>
 
           {/* 노란우산 차별점 카드 */}
