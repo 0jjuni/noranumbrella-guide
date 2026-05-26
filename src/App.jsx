@@ -28,7 +28,7 @@ import { cn } from "./lib/format";
 
 const NAV_ITEMS = [
   { id: "dashboard", label: "대시보드", icon: Home },
-  { id: "intro", label: "5분 입문", icon: Lightbulb, badge: "NEW" },
+  { id: "intro", label: "5분 입문", icon: Lightbulb },
   { id: "simulator", label: "상담 시뮬레이터", icon: MessageSquare },
   { id: "calculator", label: "계산기", icon: Calculator, highlight: true },
   { id: "guide", label: "업무별 가이드", icon: ClipboardList },
