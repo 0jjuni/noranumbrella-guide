@@ -23,7 +23,6 @@ import {
 } from "recharts";
 import { INCOME_BRACKETS } from "../../data/tax";
 import { SectionTitle } from "../../components/SectionTitle";
-import { PrintReport } from "../../components/PrintReport";
 import { cn, formatKRW, formatKRWShort } from "../../lib/format";
 
 /* 공통 적립식 미래가치 — RefundSimulator와 같은 공식
@@ -569,70 +568,18 @@ ${withIncentive ? `✓ 지자체 가입(희망)장려금 (월 ${formatKRW(incent
         </div>
       </div>
 
-      {/* 인쇄용 */}
-      <PrintReport
-        title="가입 시 상품 비교 안내"
-        subtitle={`노란우산공제 vs 일반 적금 vs 연금저축 · 월 ${formatKRW(monthlyAmount)} × ${years}년`}
-        disclaimer={`본 비교는 가정 이율 기준 추정치이며 모두 세후 환산 기준입니다.\n· 노란우산 = 노령급부 도달(만 60세+120개월) 가정, 별표1 기준이율 부리적립 + 퇴직소득세 8.8% 추정 (실제 5~15%)\n· 적금 = 매월 단리 + 이자소득세 15.4% 원천징수\n· 연금저축 = 적립식 미래가치, 만 55세+ 연금 수령, 연금소득세 5.5% 추정\n적금·연금저축 이율은 상품·시점에 따라 상이하므로 실제 가입 상품의 약관·이율을 직접 확인해야 합니다. 정확한 비교 및 의사결정은 세무 전문가 상담을 권해 드립니다.${result.isNorengEligible ? "" : "\n⚠ 가입기간이 10년 미만으로 노란우산 노령급부 조건 미충족 — 임의해약(별표3) 가정으로 단기 환급률이 낮게 산정되었습니다."}`}
-        inputs={[
-          { label: "월 납입액", value: formatKRW(monthlyAmount) },
-          { label: "가입(투자) 기간", value: `${years}년` },
-          { label: "소득금액 구간", value: bracket.rangeText },
-          {
-            label: "가정 이율 — 노란우산공제",
-            value: `${yumamRate.toFixed(1)}% (연단위 복리)`,
-          },
-          {
-            label: "가정 이율 — 일반 적금",
-            value: `${savingsRate.toFixed(1)}% (단리, 이자소득세 15.4% 차감)`,
-          },
-          {
-            label: "가정 이율 — 연금저축",
-            value: `${pensionRate.toFixed(1)}% (세액공제 ${(result.pensionCreditRate * 100).toFixed(1)}%, 한도 600만원)`,
-          },
-          ...(withIncentive
-            ? [{
-                label: "가입(희망)장려금 포함",
-                value: `월 ${formatKRW(incentiveMonthly)} × 12회 적립 후 연복리`,
-              }]
-            : []),
-        ]}
-        results={[
-          { label: "총 납부 원금", value: formatKRW(result.totalPrincipal) },
-          ...result.products.flatMap((p) => [
-            {
-              label: `${p.name} — 세후 만기액`,
-              value: formatKRW(p.net),
-              sub: p.scenario,
-            },
-            {
-              label: `${p.name} — ${p.taxSavingLabel}`,
-              value: formatKRW(p.taxSaving),
-            },
-            ...(p.incentive > 0
-              ? [{
-                  label: `${p.name} — 가입(희망)장려금`,
-                  value: formatKRW(p.incentive),
-                }]
-              : []),
-            {
-              label: `${p.name} — 총 혜택 합계`,
-              value: formatKRW(p.total),
-              emphasis: p.key === result.best.key,
-              sub:
-                p.key === result.best.key
-                  ? "★ 가장 유리한 시나리오"
-                  : `${result.best.name} 대비 ${formatKRWShort(p.total - result.best.total)}`,
-            },
-          ]),
-        ]}
-        notes={[
-          `💡 가장 유리한 상품: 「${result.best.name}」 — 총 혜택 약 ${formatKRW(result.best.total)} (납부원금 대비 +${(((result.best.total - result.totalPrincipal) / result.totalPrincipal) * 100).toFixed(1)}%)`,
-          "[수령 단계 차이]\n· 노란우산: 사유 발생 시 일시금/분할 (퇴직소득세)\n· 적금: 만기 일시금 (이자소득세 15.4% 원천징수)\n· 연금저축: 만 55세+ 연금 수령 (연금소득세 3.3~5.5%). 중도 해지 시 기타소득세 16.5%",
-          "[노란우산만의 차별점 — 수치 외 영업 포인트]\n✓ 공제금 수급권 양도·압류·담보 금지 (중협법 §119)\n✓ 무담보 공제계약 대출\n✓ 무료 단체상해보험 (월부금 150배, 최대 1.5억)\n✓ 복지플러스 (건강검진·여행·교육·세무자문 할인)",
-          "노란우산 가입기간 < 10년은 노령급부 조건 미충족 — 임의해약 시 별표3 적용으로 단기 손실 가능. 가입은 장기 유지 전제 권장.",
-        ]}
-        legalBasis="조세특례제한법 제86조의3 · 중소기업협동조합법 제115조·제119조 · 약관 별표1·별표2·별표3"
+      {/* 인쇄용 — 2페이지 양식 (페이지 1: 비교표 + 차트 / 페이지 2: 차별점 + 수령단계) */}
+      <ProductComparePrint
+        monthlyAmount={monthlyAmount}
+        years={years}
+        bracket={bracket}
+        yumamRate={yumamRate}
+        savingsRate={savingsRate}
+        pensionRate={pensionRate}
+        withIncentive={withIncentive}
+        incentiveMonthly={incentiveMonthly}
+        result={result}
+        chartData={chartData}
       />
     </div>
   );
@@ -725,5 +672,420 @@ const DiffRow = ({ icon: Icon, title, children }) => (
       <span className="font-bold text-stone-900">{title}</span>
       <span className="text-stone-700"> — {children}</span>
     </div>
+  </div>
+);
+
+/* ProductCompare 전용 인쇄 양식 — 2페이지 구조
+   페이지 1: 가입 조건 + 4컬럼 비교 표 + 차트
+   페이지 2: 차별점 + 수령 단계 + 디스클레이머·법령 근거 */
+const ProductComparePrint = ({
+  monthlyAmount,
+  years,
+  bracket,
+  yumamRate,
+  savingsRate,
+  pensionRate,
+  withIncentive,
+  incentiveMonthly,
+  result,
+  chartData,
+}) => {
+  const now = new Date();
+  const printedAt = `${now.getFullYear()}. ${String(now.getMonth() + 1).padStart(2, "0")}. ${String(now.getDate()).padStart(2, "0")}. ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+  const totalPctBest = (((result.best.total - result.totalPrincipal) / result.totalPrincipal) * 100).toFixed(1);
+
+  return (
+    <div
+      className="hidden print:block print-report bg-white text-stone-900"
+      style={{ fontFamily: "'Noto Sans KR', 'Pretendard', system-ui, sans-serif" }}
+      aria-hidden="true"
+    >
+      {/* ===== 페이지 1 ===== */}
+      <div style={{ pageBreakAfter: "always" }}>
+        <div className="px-2 py-2 max-w-4xl mx-auto leading-snug">
+          {/* 헤더 */}
+          <div className="border-b-2 border-stone-900 pb-2 mb-3">
+            <div className="flex items-baseline justify-between gap-3">
+              <div>
+                <div className="text-[9px] uppercase tracking-widest text-stone-500 font-bold">
+                  노란우산공제 상담 자료 · iM뱅크
+                </div>
+                <h1 className="text-base font-black text-stone-900 mt-0.5 leading-tight">
+                  가입 시 상품 비교 안내
+                </h1>
+                <p className="text-[11px] text-stone-700 mt-0.5">
+                  노란우산공제 vs 일반 적금 vs 연금저축 · 월 {formatKRW(monthlyAmount)} × {years}년
+                </p>
+              </div>
+              <div className="text-right text-[9px] text-stone-500 leading-snug flex-shrink-0">
+                <div>인쇄일시: {printedAt}</div>
+                <div>page 1 / 2</div>
+              </div>
+            </div>
+          </div>
+
+          {/* 디스클레이머 (간략) */}
+          <div className="border border-amber-600 bg-amber-50 rounded-sm p-2 mb-3 break-inside-avoid">
+            <div className="flex items-start gap-1.5">
+              <span className="text-sm leading-none mt-0.5">⚠</span>
+              <div className="flex-1 text-[10px] text-stone-900 leading-snug">
+                <strong className="text-amber-900">본 안내는 추정치입니다</strong> — 가정 이율 기준이며, 부가지급률·매 분기 변동 기준이율은 미반영. 모든 결과 세후 환산. 실제 금액은 중앙회 시스템(1666-9988) 조회 + 세무 전문가 상담 권장.
+                {!result.isNorengEligible && (
+                  <span className="block mt-1 text-amber-900">
+                    ⚠ 가입기간 10년 미만 — 노란우산 노령급부 조건 미충족
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* 입력 조건 — 한 줄 압축 */}
+          <section className="mb-3 break-inside-avoid">
+            <h2 className="text-[10px] font-black uppercase tracking-wider text-stone-700 border-b border-stone-300 pb-0.5 mb-1.5">
+              가입 조건
+            </h2>
+            <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-[10.5px]">
+              <PRow label="월 납입액" value={formatKRW(monthlyAmount)} />
+              <PRow label="가입(투자) 기간" value={`${years}년`} />
+              <PRow label="소득금액 구간" value={bracket.rangeText} />
+              <PRow label="가정 이율 (노란우산)" value={`${yumamRate.toFixed(1)}% 연복리`} />
+              <PRow label="가정 이율 (적금)" value={`${savingsRate.toFixed(1)}% 단리`} />
+              <PRow
+                label="가정 이율 (연금저축)"
+                value={`${pensionRate.toFixed(1)}% (세액공제 ${(result.pensionCreditRate * 100).toFixed(1)}%)`}
+              />
+              {withIncentive && (
+                <PRow
+                  label="가입장려금"
+                  value={`월 ${formatKRW(incentiveMonthly)} × 12회 + 연복리`}
+                />
+              )}
+              <PRow label="총 납부 원금" value={formatKRW(result.totalPrincipal)} emphasis />
+            </div>
+          </section>
+
+          {/* 4컬럼 비교 표 */}
+          <section className="mb-3 break-inside-avoid">
+            <h2 className="text-[10px] font-black uppercase tracking-wider text-stone-700 border-b border-stone-300 pb-0.5 mb-1.5">
+              상품별 비교 (모두 세후 기준)
+            </h2>
+            <table className="w-full text-[10px] border border-stone-300">
+              <thead className="bg-stone-100 border-b-2 border-stone-400">
+                <tr>
+                  <th className="px-1.5 py-1 text-left font-bold text-stone-700 w-1/5">항목</th>
+                  {result.products.map((p) => (
+                    <th
+                      key={p.key}
+                      className={cn(
+                        "px-1.5 py-1 text-right font-bold leading-tight",
+                        p.key === result.best.key
+                          ? "bg-amber-100 text-amber-900"
+                          : "text-stone-700"
+                      )}
+                    >
+                      {p.name}
+                      {p.key === result.best.key && <span className="block text-[8px] mt-0.5">★ 가장 유리</span>}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-stone-200">
+                <tr>
+                  <td className="px-1.5 py-1 text-stone-600 font-semibold">세후 만기액</td>
+                  {result.products.map((p) => (
+                    <td
+                      key={p.key}
+                      className={cn(
+                        "px-1.5 py-1 text-right tabular-nums",
+                        p.key === result.best.key ? "bg-amber-50 font-bold text-amber-900" : "text-stone-900"
+                      )}
+                    >
+                      {formatKRW(p.net)}
+                    </td>
+                  ))}
+                </tr>
+                <tr>
+                  <td className="px-1.5 py-1 text-stone-600 font-semibold">절세·세액공제</td>
+                  {result.products.map((p) => (
+                    <td
+                      key={p.key}
+                      className={cn(
+                        "px-1.5 py-1 text-right tabular-nums",
+                        p.key === result.best.key ? "bg-amber-50" : "",
+                        p.taxSaving === 0 ? "text-stone-400" : "text-emerald-700 font-semibold"
+                      )}
+                    >
+                      {p.taxSaving > 0 ? formatKRW(p.taxSaving) : "—"}
+                    </td>
+                  ))}
+                </tr>
+                <tr>
+                  <td className="px-1.5 py-1 text-stone-600 font-semibold">가입장려금</td>
+                  {result.products.map((p) => (
+                    <td
+                      key={p.key}
+                      className={cn(
+                        "px-1.5 py-1 text-right tabular-nums",
+                        p.key === result.best.key ? "bg-amber-50" : "",
+                        p.incentive === 0 ? "text-stone-400" : "text-violet-700 font-semibold"
+                      )}
+                    >
+                      {p.incentive > 0 ? formatKRW(p.incentive) : "—"}
+                    </td>
+                  ))}
+                </tr>
+                <tr className="border-t-2 border-stone-400 bg-stone-50">
+                  <td className="px-1.5 py-1.5 text-stone-700 font-bold">총 혜택 합계</td>
+                  {result.products.map((p) => (
+                    <td
+                      key={p.key}
+                      className={cn(
+                        "px-1.5 py-1.5 text-right tabular-nums font-black",
+                        p.key === result.best.key
+                          ? "bg-amber-200 text-amber-900 text-[12px]"
+                          : "text-stone-900"
+                      )}
+                    >
+                      {formatKRW(p.total)}
+                    </td>
+                  ))}
+                </tr>
+                <tr>
+                  <td className="px-1.5 py-0.5 text-stone-500 text-[8.5px]">원금 대비</td>
+                  {result.products.map((p) => {
+                    const pct = (((p.total - result.totalPrincipal) / result.totalPrincipal) * 100).toFixed(1);
+                    return (
+                      <td
+                        key={p.key}
+                        className={cn(
+                          "px-1.5 py-0.5 text-right text-[9px] tabular-nums",
+                          p.key === result.best.key ? "bg-amber-50 font-bold" : "",
+                          p.total < result.totalPrincipal ? "text-red-600" : "text-emerald-700"
+                        )}
+                      >
+                        {p.total >= result.totalPrincipal ? "+" : ""}{pct}%
+                      </td>
+                    );
+                  })}
+                </tr>
+                <tr>
+                  <td className="px-1.5 py-1 text-stone-500 align-top text-[8.5px]">시나리오</td>
+                  {result.products.map((p) => (
+                    <td
+                      key={p.key}
+                      className={cn(
+                        "px-1.5 py-1 text-[8.5px] text-stone-600 leading-tight",
+                        p.key === result.best.key ? "bg-amber-50" : ""
+                      )}
+                    >
+                      {p.scenario}
+                    </td>
+                  ))}
+                </tr>
+              </tbody>
+            </table>
+            <p className="text-[10px] text-amber-900 font-bold mt-1.5 leading-snug">
+              💡 가장 유리한 상품: 「{result.best.name}」 — 총 혜택 약 {formatKRW(result.best.total)}{" "}
+              (납부원금 대비 +{totalPctBest}%)
+            </p>
+          </section>
+
+          {/* 차트 */}
+          <section className="break-inside-avoid">
+            <h2 className="text-[10px] font-black uppercase tracking-wider text-stone-700 border-b border-stone-300 pb-0.5 mb-1.5">
+              순 혜택 시각 비교 (원금 제외 · 세후)
+            </h2>
+            <div className="flex justify-center">
+              <BarChart
+                width={560}
+                height={170}
+                data={chartData}
+                margin={{ top: 5, right: 15, bottom: 25, left: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#d6d3d1" />
+                <XAxis
+                  dataKey="name"
+                  tick={{ fontSize: 9, fill: "#44403c" }}
+                  interval={0}
+                  angle={-12}
+                  textAnchor="end"
+                />
+                <YAxis
+                  tickFormatter={(v) => formatKRWShort(v)}
+                  tick={{ fontSize: 8, fill: "#78716c" }}
+                  width={55}
+                />
+                <Legend wrapperStyle={{ fontSize: 9 }} />
+                <Bar dataKey="세후 이자수익" stackId="a" fill="#f59e0b" />
+                <Bar dataKey="절세액" stackId="a" fill="#10b981" />
+                <Bar dataKey="장려금" stackId="a" fill="#8b5cf6" />
+              </BarChart>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      {/* ===== 페이지 2 ===== */}
+      <div>
+        <div className="px-2 py-2 max-w-4xl mx-auto leading-snug">
+          {/* 헤더 (간략) */}
+          <div className="border-b-2 border-stone-900 pb-2 mb-3">
+            <div className="flex items-baseline justify-between gap-3">
+              <div>
+                <div className="text-[9px] uppercase tracking-widest text-stone-500 font-bold">
+                  노란우산공제 상담 자료 · iM뱅크
+                </div>
+                <h1 className="text-base font-black text-stone-900 mt-0.5 leading-tight">
+                  노란우산만의 차별점 · 수령 단계 비교
+                </h1>
+              </div>
+              <div className="text-right text-[9px] text-stone-500 leading-snug flex-shrink-0">
+                <div>인쇄일시: {printedAt}</div>
+                <div>page 2 / 2</div>
+              </div>
+            </div>
+          </div>
+
+          {/* 차별점 4종 */}
+          <section className="mb-3 break-inside-avoid">
+            <h2 className="text-[10px] font-black uppercase tracking-wider text-stone-700 border-b border-stone-300 pb-0.5 mb-1.5">
+              노란우산만의 차별점 (수치 외 영업 포인트)
+            </h2>
+            <div className="grid grid-cols-2 gap-2 text-[10.5px]">
+              <PrintDiff title="공제금 수급권 보호">
+                양도·압류·담보 모두 금지 (중협법 §119). 채무·소송 위험에서 자산 보호.
+              </PrintDiff>
+              <PrintDiff title="공제계약 대출">
+                해약환급금 범위 내 무담보. 일시 자금 시 해약 대신 유지 가능.
+              </PrintDiff>
+              <PrintDiff title="무료 단체상해보험">
+                자동 가입. 월부금 최대 150배 (750만 ~ 1.5억) 상해 보장.
+              </PrintDiff>
+              <PrintDiff title="복지플러스">
+                건강검진 20~50% 할인 · 여행 50~70% 할인 · 무료 경영·세무·법무 자문.
+              </PrintDiff>
+            </div>
+          </section>
+
+          {/* 수령 단계 비교 표 */}
+          <section className="mb-3 break-inside-avoid">
+            <h2 className="text-[10px] font-black uppercase tracking-wider text-stone-700 border-b border-stone-300 pb-0.5 mb-1.5">
+              수령 단계 · 과세 · 보호 비교
+            </h2>
+            <table className="w-full text-[10px] border border-stone-300">
+              <thead className="bg-stone-100 border-b-2 border-stone-400">
+                <tr>
+                  <th className="px-1.5 py-1 text-left font-bold text-stone-700">항목</th>
+                  <th className="px-1.5 py-1 text-left font-bold text-amber-700">노란우산</th>
+                  <th className="px-1.5 py-1 text-left font-bold text-stone-700">일반 적금</th>
+                  <th className="px-1.5 py-1 text-left font-bold text-blue-700">연금저축</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-stone-200 text-stone-800">
+                <tr>
+                  <td className="px-1.5 py-1 font-semibold">수령 시기</td>
+                  <td className="px-1.5 py-1">사유 발생 시</td>
+                  <td className="px-1.5 py-1">만기 일시금</td>
+                  <td className="px-1.5 py-1">만 55세+ 연금</td>
+                </tr>
+                <tr>
+                  <td className="px-1.5 py-1 font-semibold">정상 과세</td>
+                  <td className="px-1.5 py-1">퇴직소득세 (5~15%)</td>
+                  <td className="px-1.5 py-1">이자소득세 15.4%</td>
+                  <td className="px-1.5 py-1">연금소득세 3.3~5.5%</td>
+                </tr>
+                <tr>
+                  <td className="px-1.5 py-1 font-semibold">중도해지 과세</td>
+                  <td className="px-1.5 py-1">기타소득세 16.5%</td>
+                  <td className="px-1.5 py-1">동일</td>
+                  <td className="px-1.5 py-1 text-red-600 font-semibold">기타소득세 16.5% ⚠</td>
+                </tr>
+                <tr>
+                  <td className="px-1.5 py-1 font-semibold">압류 보호</td>
+                  <td className="px-1.5 py-1 text-emerald-700 font-bold">✓ 양도·압류·담보 금지</td>
+                  <td className="px-1.5 py-1 text-stone-500">없음</td>
+                  <td className="px-1.5 py-1 text-stone-500">없음</td>
+                </tr>
+                <tr>
+                  <td className="px-1.5 py-1 font-semibold">담보 대출</td>
+                  <td className="px-1.5 py-1 text-emerald-700 font-bold">✓ 무담보</td>
+                  <td className="px-1.5 py-1 text-stone-500">예적금담보 가능</td>
+                  <td className="px-1.5 py-1 text-stone-500">제한적</td>
+                </tr>
+                <tr>
+                  <td className="px-1.5 py-1 font-semibold">소득공제·세액공제</td>
+                  <td className="px-1.5 py-1 text-emerald-700 font-bold">소득공제 최대 600만</td>
+                  <td className="px-1.5 py-1 text-stone-500">없음</td>
+                  <td className="px-1.5 py-1 text-emerald-700">세액공제 13.2~16.5%</td>
+                </tr>
+                <tr>
+                  <td className="px-1.5 py-1 font-semibold">부가서비스</td>
+                  <td className="px-1.5 py-1 text-emerald-700 font-bold">단체상해보험 + 복지플러스</td>
+                  <td className="px-1.5 py-1 text-stone-500">없음</td>
+                  <td className="px-1.5 py-1 text-stone-500">없음</td>
+                </tr>
+              </tbody>
+            </table>
+          </section>
+
+          {/* 상세 디스클레이머·법령 근거 */}
+          <section className="mb-3 break-inside-avoid text-[10px] text-stone-800 leading-snug space-y-1">
+            <h2 className="text-[10px] font-black uppercase tracking-wider text-stone-700 border-b border-stone-300 pb-0.5 mb-1.5">
+              참고 사항
+            </h2>
+            <p>
+              · 노란우산 = 폐업·법인해산·사망공제금 가정 시 별표1 차등지급이율(15년간 기준이율 +0.3%) 적용 + 퇴직소득세 8.8% 추정 (근속·환산급여공제로 실제 5~15%)
+            </p>
+            <p>
+              · 노란우산 노령급부 도달 시 = 별표1 기준이율 부리적립 (가산 없음) + 퇴직소득세
+            </p>
+            <p>
+              · 적금 = 매월 단리 (P × r × N(N+1)/(2×12)) + 이자소득세 15.4% (지방세 포함) 원천징수
+            </p>
+            <p>
+              · 연금저축 = 적립식 미래가치, 만 55세+ 연금 수령 시 연금소득세 평균 5.5% 추정. 중도 해지 시 기타소득세 16.5%
+            </p>
+            <p>
+              · 가입(희망)장려금은 가입일로부터 1년간(최대 12회) 월별 적립 후 수령 시까지 연복리 부리. 임의해약 시 미지급/감액 위험
+            </p>
+            <p>
+              · 적금·연금저축 이율은 상품·시점에 따라 상이하므로 실제 가입 상품의 약관·이율을 직접 확인해야 합니다.
+            </p>
+          </section>
+
+          {/* 푸터 */}
+          <div className="border-t-2 border-stone-900 pt-1.5 mt-2 text-[9.5px] text-stone-700 leading-snug space-y-0.5 break-inside-avoid">
+            <p>
+              <strong className="text-stone-900">법령 근거:</strong> 조세특례제한법 제86조의3 · 중소기업협동조합법 제115조·제119조 · 약관 별표1·별표2·별표3
+            </p>
+            <p>
+              <strong className="text-stone-900">출처:</strong> 소기업·소상공인공제 약관(2026.1.1 시행), 조세특례제한법(법률 2025.7.1 시행 / 시행령 2026.2.27 시행), 중소기업협동조합법(제121조의2 2026.6.3 시행)
+            </p>
+            <p>
+              <strong className="text-stone-900">문의:</strong> 중소기업중앙회 노란우산공제 1666-9988 · https://www.8899.or.kr/
+            </p>
+            <p className="text-stone-500 mt-1">
+              본 자료는 iM뱅크 영업점 직원이 고객 상담 시 참고용으로 제공하는 추정 안내입니다. 실제 공제금·환급금·세액·이율은 다른 소득공제 항목, 추가 소득, 시점, 세법 개정, 분기별 기준이율 변동 등에 따라 달라질 수 있으니 정확한 금액은 중앙회 시스템 조회 결과로 확인해 주시기 바랍니다.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const PRow = ({ label, value, emphasis }) => (
+  <>
+    <div className={cn("text-stone-600", emphasis && "font-bold text-stone-900")}>{label}</div>
+    <div className={cn("text-right text-stone-900 font-semibold tabular-nums", emphasis && "text-amber-900 font-black")}>
+      {value}
+    </div>
+  </>
+);
+
+const PrintDiff = ({ title, children }) => (
+  <div className="border border-amber-300 bg-amber-50/50 rounded-sm p-2">
+    <div className="font-bold text-amber-900 mb-0.5">{title}</div>
+    <div className="text-stone-700 leading-snug">{children}</div>
   </div>
 );
