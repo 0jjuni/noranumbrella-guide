@@ -162,7 +162,7 @@ export const PrintReport = ({
             </p>
           )}
           <p>
-            <strong className="text-stone-900">출처:</strong> 소기업·소상공인공제 약관(2026.1.1
+            <strong className="text-stone-900">출처:</strong> 소기업·소상공인공제 약관(2026.7.1
             시행), 조세특례제한법(법률 2025.7.1 시행 / 시행령 2026.2.27 시행), 중소기업협동조합법(제121조의2 2026.6.3 시행)
           </p>
           <p>

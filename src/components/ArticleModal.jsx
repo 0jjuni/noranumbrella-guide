@@ -111,14 +111,14 @@ export const ArticleModal = ({ articleNo, onClose }) => {
               본 화면은 직원 안내용 요약입니다.{" "}
               {isExternal
                 ? "정확한 조항은 해당 법령·시행령·내부 규정 원문을 직접 참조하시기 바랍니다."
-                : `정확한 조항 원문은 첨부된 약관 책자(2026. 1. 1 시행) ${articleNo} ${article.title}를 직접 참조하시기 바랍니다.`}
+                : `정확한 조항 원문은 첨부된 약관 책자(2026. 7. 1 시행) ${articleNo} ${article.title}를 직접 참조하시기 바랍니다.`}
             </div>
           )}
 
           <div className="text-[11px] text-stone-500 leading-relaxed space-y-1 pt-3 border-t border-stone-100">
             <p>
               ⚠ 본 화면은 직원 안내용 요약입니다. 정확한 조항 원문은 약관
-              책자(2026.1.1 시행) 또는 해당 법령·시행령·내부 규정을 직접 참조해
+              책자(2026.7.1 시행) 또는 해당 법령·시행령·내부 규정을 직접 참조해
               주세요.
             </p>
             <p>📞 중소기업중앙회 노란우산공제 1666-9988</p>

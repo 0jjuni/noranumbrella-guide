@@ -161,7 +161,7 @@ export const TaxSavingCalculator = ({ onOpenArticle }) => {
               <input
                 type="range"
                 min="50000"
-                max="1000000"
+                max="1500000"
                 step="10000"
                 value={monthlyAmount}
                 onChange={(e) => setMonthlyAmount(Number(e.target.value))}
@@ -169,18 +169,18 @@ export const TaxSavingCalculator = ({ onOpenArticle }) => {
               />
               <div className="flex justify-between text-[11px] text-stone-500 mt-1">
                 <span>5만원</span>
-                <span>50만원</span>
-                <span>100만원</span>
+                <span>75만원</span>
+                <span>150만원</span>
               </div>
               <input
                 type="number"
                 value={monthlyAmount}
                 min="50000"
-                max="1000000"
+                max="1500000"
                 step="10000"
                 onChange={(e) =>
                   setMonthlyAmount(
-                    Math.max(50000, Math.min(1000000, Number(e.target.value)))
+                    Math.max(50000, Math.min(1500000, Number(e.target.value)))
                   )
                 }
                 className="mt-2 w-full px-3 py-2 text-sm border border-stone-300 rounded-sm focus:outline-none focus:border-amber-500"

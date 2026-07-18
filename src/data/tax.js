@@ -40,7 +40,11 @@ export const INCOME_BRACKETS = [
 ];
 
 /* 별표3 일반해약환급금 지급기준표 — 부금납부월수별 환급률
-   환급금 = 납부원금 × baseRate + 적립이자 × interestShare */
+   환급금 = 납부원금 × baseRate + 적립이자 × interestShare
+   [2026.7.1 개정 반영]
+   · 주4: 납부부금 = 부금월액 + 추가납입부금 (제14조의2 신설)
+   · 주5: 부금납부월수 6회 이하 시점에 납입된 추가납입부금은 해약 시 100.0%로 반환
+   · 지급률·이자율 수치 자체는 26.1.1 → 26.7.1 개정에서 변동 없음 */
 export const REFUND_TABLE_GENERAL = [
   { from: 1, to: 3, baseRate: 0.8, interestShare: 0, label: "1~3회: 80%" },
   { from: 4, to: 6, baseRate: 0.9, interestShare: 0, label: "4~6회: 90%" },

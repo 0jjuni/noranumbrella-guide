@@ -258,7 +258,7 @@ ${withIncentive ? `✓ 지자체 가입(희망)장려금 (월 ${formatKRW(incent
               <input
                 type="range"
                 min="50000"
-                max="1000000"
+                max="1500000"
                 step="10000"
                 value={monthlyAmount}
                 onChange={(e) => setMonthlyAmount(Number(e.target.value))}
@@ -1056,7 +1056,7 @@ const ProductComparePrint = ({
               <strong className="text-stone-900">법령 근거:</strong> 조세특례제한법 제86조의3 · 중소기업협동조합법 제115조·제119조 · 약관 별표1·별표2·별표3
             </p>
             <p>
-              <strong className="text-stone-900">출처:</strong> 소기업·소상공인공제 약관(2026.1.1 시행), 조세특례제한법(법률 2025.7.1 시행 / 시행령 2026.2.27 시행), 중소기업협동조합법(제121조의2 2026.6.3 시행)
+              <strong className="text-stone-900">출처:</strong> 소기업·소상공인공제 약관(2026.7.1 시행), 조세특례제한법(법률 2025.7.1 시행 / 시행령 2026.2.27 시행), 중소기업협동조합법(제121조의2 2026.6.3 시행)
             </p>
             <p>
               <strong className="text-stone-900">문의:</strong> 중소기업중앙회 노란우산공제 1666-9988 · https://www.8899.or.kr/
